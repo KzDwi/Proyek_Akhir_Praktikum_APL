@@ -1,0 +1,16 @@
+{
+    "barang": [
+        {
+            "berat": 1,
+            "harga": 3000,
+            "nama": "cabe",
+            "stok": 500
+        },
+        {
+            "berat": 1,
+            "harga": 24000,
+            "nama": "kedelai",
+            "stok": 40
+        }
+    ]
+}

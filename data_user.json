@@ -1,0 +1,18 @@
+{
+    "pembeli": [
+        {
+            "password": "culun",
+            "username": "andini"
+        }
+    ],
+    "penjual": [
+        {
+            "password": "dini",
+            "username": "dini"
+        },
+        {
+            "password": "35",
+            "username": "ahnaf"
+        }
+    ]
+}
