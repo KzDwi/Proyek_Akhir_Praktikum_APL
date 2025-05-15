@@ -11,7 +11,7 @@ int jumlah_user = 0;
 string username,password, penjual[MAX_user],pwsell[MAX_user],nama,deskripsi;
 int percobaan=0;
 int pilihan,stok,harga,berat;
-
+// anjay
 
 void datapenjual(string* penjual, string* pwsell, int* jumlah_user){
     json data;
