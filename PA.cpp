@@ -21,7 +21,7 @@ int jumlahtopup, dana = 0;
 ///
 ///////////////////////////////////////////////////////
 
-void datapenjual(string* penjual, string* pwsell, int* jumlah_user, string *hppj){
+void datapenjual(string* penjual, string* pwsell, int* jumlah_user, string *hppj, int* dana){
     json data;
     ifstream inFile("data_user.json");
     if (inFile.is_open()) {
@@ -32,7 +32,8 @@ void datapenjual(string* penjual, string* pwsell, int* jumlah_user, string *hppj
     data["penjual"].push_back({
         {"username", penjual[*jumlah_user]},
         {"password", pwsell[*jumlah_user]},
-        {"nohp", *hppj}
+        {"nohp", *hppj},
+        {"dana", *dana}
     });
 
     ofstream outFile("data_user.json");
@@ -280,43 +281,66 @@ void menghapusbarang(string* cari_nama, bool* ketemu) {
 
     // ----------------------------------------
     // |    KELOMPOK LAIN GPT ITU BANG        |
-    // |                                      |
+    // |             BY AHNAF                 |
     // |         FITUR PEMBELI                |
-    // |             GACOR                    |
-    // |           BY AHNAF                   |
+    // |            GACOR LE                  |
+    // |                                      |
     // |--------------------------------------|
 
-void topup(string*username,string*password,string*nohp,int* jumlahtopup, int*dana){
-    cout <<"masukkan username" <<endl;
-        cin >> *username;
-        cout <<"masukkan password" <<endl;
-        cin >> *password;
-        cout << "masukkan no hp" <<endl;
-        cin >> *nohp;
-        if (verifikasiuser()){
-            cout << "masukkan jumlah topup" <<endl;
-            cin >> *jumlahtopup;
-            *dana=+*jumlahtopup;
-            json data;
-    ifstream inFile("dana_pembeli.json");
+
+// ID = Pesanan biar gampang navigasi status
+// Username
+// Password
+// NoHP
+// Saldo = Dana Masuk keluar
+
+
+
+void topup(string* username, string* password, string* nohp, int* jumlahtopup, int* dana){
+    json data;
+    ifstream inFile("data_user.json");
+
     if (inFile.is_open()) {
         inFile >> data;
         inFile.close();
+    } else {
+        cout << "Gagal membuka file data_user.json" << endl;
+        return;
     }
 
-    data["dana"].push_back({
-        {"username", *username},
-        {"dana", *dana},
-        {"nohp", *nohp}
-    });
+    bool found = false;
+    for (auto& user : data["pembeli"]) {
+        if (user["username"] == *username && user["password"] == *password && user["nohp"] == *nohp) {
+            cout << "Masukkan jumlah top up: ";
+            cin >> *jumlahtopup;
 
-    ofstream outFile("dana_pembeli.json");
-    outFile << data.dump(4);
-    outFile.close();
-    
-    cout << "Top up berhasil!\n";
-}
+            if (user.contains("dana") && user["dana"].is_number()) {
+                user["dana"] = user["dana"].get<int>() + *jumlahtopup;
+            } else {
+                user["dana"] = *jumlahtopup;
+            }
+
+            *dana = user["dana"];
+            found = true;
+            break;
         }
+    }
+
+    if (found) {
+        ofstream outFile("data_user.json");
+        if (outFile.is_open()) {
+            outFile << data.dump(4);
+            outFile.close();
+            cout << "Top up berhasil. Saldo sekarang: " << *dana << endl;
+        } else {
+            cout << "Gagal menyimpan ke file data_user.json" << endl;
+        }
+    } else {
+        cout << "Data pengguna tidak ditemukan. Top up gagal." << endl;
+    }
+}
+
+        
 
 
 
@@ -349,7 +373,7 @@ void regis(string *username, string* password,string* penjual, string* pwsell, i
         cout<<"masukkan no hp"<<endl;
         cin>>hppj;
         cin.ignore();
-        datapenjual(penjual, pwsell, jumlah_user,&hppj);
+        datapenjual(penjual, pwsell, jumlah_user,&hppj,&dana);
         (*jumlah_user)++;
         break;
     
@@ -428,13 +452,13 @@ bool login(string* username, string* password,string* penjual, string* pwsell, i
                     menghapusbarang(&cari_nama,&ketemu);
                     break;
                 case 5:
-                cout<<"nanti ada narik saldo";
+                    cout<<"nanti ada narik saldo";
                 break;
                 case 6:
-                cout<<"ngasih rating ceritanya, bintang 5"<<endl;
+                    cout<<"update, bintang 5"<<endl;
                 break;
                 case 7:
-                cout<<"terimakasih sudah menggunakan program ini"<<endl;
+                    cout<<"terimakasih sudah menggunakan program ini"<<endl;
                 break;
                 default:
                 cout<<"pilihan tidak valid"<<endl;
