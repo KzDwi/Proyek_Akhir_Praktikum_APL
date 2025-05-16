@@ -13,9 +13,10 @@ string username, password, penjual[MAX_user], pwsell[MAX_user], nama, deskripsi,
 int percobaan=0;    
 int pilihan, stok, harga, berat, namabr, stokbr, hargabr, beratbr;
 bool ketemu;
+int jumlahtopup, dana = 0;
 
 ///////////////////////////////////////////////////////
-/// DATA PENJUAL DAN PEMBELI
+/// DATA PENJUAL 
 ///
 ///
 ///////////////////////////////////////////////////////
@@ -40,6 +41,8 @@ void datapenjual(string* penjual, string* pwsell, int* jumlah_user, string *hppj
     
     cout << "Pendaftaran penjual berhasil!\n";
 }
+
+
 
 // Fungsi untuk menyimpan data pembeli ke file JSON
 void datapembeli(string* username, string* password, string* nohp){
@@ -113,11 +116,13 @@ bool verifikasiuser(){
     return false;
 }
 
-///////////////////////////////////////////////////////
-/// MENU PENJUAL
-///
-///
-///////////////////////////////////////////////////////
+    // ----------------------------------------
+    // |     OTW KELOMPOK TERBAIK             |
+    // |                                      |
+    // |         FITUR PENJUAL                |
+    // |             GACOR                    |
+    // |           BY AHNAF                   |
+    // |--------------------------------------|
 
 void lihatbarang(){ // MELIHAT BARANG (PEMBELI)
     ifstream file("data_barang.json");
@@ -136,11 +141,11 @@ void lihatbarang(){ // MELIHAT BARANG (PEMBELI)
 void barangpenjual(string& nama, int& stok, int &berat, int &harga){ // MENAMBAH BARANG (PENJUAL)
     cout<<"masukkan nama barang"<<endl;
     cin>>nama;
-    cout<<"masukkan stok barang dalam kg"<<endl;
+    cout<<"masukkan stok barang dalam kg atau satuan"<<endl;
     cin>>stok;
-    cout<<"masukkan berat barang/penjualan"<<endl;
+    cout<<"masukkan berat barang/penjualan atau satuan barang/penjualan"<<endl;
     cin>>berat;
-    cout<<"masukkan harga barang/penjualan"<<endl;
+    cout<<"masukkan harga barang/penjualan atau /kg"<<endl;
     cin>>harga;
 
     json data;
@@ -270,6 +275,49 @@ void menghapusbarang(string* cari_nama, bool* ketemu) {
     }
 }
 
+// void tarikuang(){ }
+
+
+    // ----------------------------------------
+    // |    KELOMPOK LAIN GPT ITU BANG        |
+    // |                                      |
+    // |         FITUR PEMBELI                |
+    // |             GACOR                    |
+    // |           BY AHNAF                   |
+    // |--------------------------------------|
+
+void topup(string*username,string*password,string*nohp,int* jumlahtopup, int*dana){
+    cout <<"masukkan username" <<endl;
+        cin >> *username;
+        cout <<"masukkan password" <<endl;
+        cin >> *password;
+        cout << "masukkan no hp" <<endl;
+        cin >> *nohp;
+        if (verifikasiuser()){
+            cout << "masukkan jumlah topup" <<endl;
+            cin >> *jumlahtopup;
+            *dana=+*jumlahtopup;
+            json data;
+    ifstream inFile("dana_pembeli.json");
+    if (inFile.is_open()) {
+        inFile >> data;
+        inFile.close();
+    }
+
+    data["dana"].push_back({
+        {"username", *username},
+        {"dana", *dana},
+        {"nohp", *nohp}
+    });
+
+    ofstream outFile("dana_pembeli.json");
+    outFile << data.dump(4);
+    outFile.close();
+    
+    cout << "Top up berhasil!\n";
+}
+        }
+
 
 
 
@@ -339,7 +387,14 @@ bool login(string* username, string* password,string* penjual, string* pwsell, i
     cin >> pilihan;
 
     switch (pilihan){  
-    case 1: // MENU PENJUAL
+    // ----------------------------------------
+    // |                                      |
+    // |                                      |
+    // |           MENU PENJUAL               |
+    // |                                      |
+    // |                                      |
+    // |--------------------------------------|
+    case 1:
         cout <<"masukkan username" <<endl;
         cin >> penjual[*jumlah_user];
         cout <<"masukkan password" <<endl;
@@ -354,6 +409,9 @@ bool login(string* username, string* password,string* penjual, string* pwsell, i
             cout<<"2. lihat barang"<<endl;
             cout<<"3. edit barang"<<endl;
             cout<<"4. hapus barang"<<endl;
+            cout<<"5. menarik saldo"<<endl;
+            cout<<"6. menampilkan rating"<<endl;
+            cout<<"7. keluar"<<endl;
             cout<<"masukkan pilihan: ";
             cin>>pilihan;
             switch (pilihan){
@@ -368,8 +426,19 @@ bool login(string* username, string* password,string* penjual, string* pwsell, i
                 break;
                 case 4:
                     menghapusbarang(&cari_nama,&ketemu);
+                    break;
+                case 5:
+                cout<<"nanti ada narik saldo";
                 break;
-            }}while(pilihan!=5);
+                case 6:
+                cout<<"ngasih rating ceritanya, bintang 5"<<endl;
+                break;
+                case 7:
+                cout<<"terimakasih sudah menggunakan program ini"<<endl;
+                break;
+                default:
+                cout<<"pilihan tidak valid"<<endl;
+            }}while(pilihan!=7);
             return true;
         }
         else{
@@ -379,7 +448,14 @@ bool login(string* username, string* password,string* penjual, string* pwsell, i
         }
         break;
 
-    case 2: // MENU PEMBELI
+    // ----------------------------------------
+    // |                                      |
+    // |                                      |
+    // |           MENU PEMBELI               |
+    // |                                      |
+    // |                                      |
+    // |--------------------------------------|
+    case 2:
         cout << "Masukkan username: ";
         cin>>*username;
         cout << "Masukkan password: ";
@@ -388,9 +464,29 @@ bool login(string* username, string* password,string* penjual, string* pwsell, i
         cin>>*nohp;
         cin.ignore();
         if (verifikasiuser()){
+            do{
             cout<<"login berhasil"<<endl;
-            cout<<"menu pembeli ini cuy"<<endl;
+            cout<<"Silahkan pilih menu"<<endl;
+            cout<<"1. Top up dana"<<endl;
+            cout<<"2. Beli barang"<<endl;
+            cout<<"3. Keluar"<<endl;
+            cout<<"Masukkan pilihan: ";
+            cin>>pilihan;
+            switch (pilihan){
+                case 1:
+                    topup(username, password, nohp, &jumlahtopup, &dana);
+                break;
+                // case 2:
+                //     beli(nama, stok, berat, harga);
+                // break;
+                case 3:
+                cout<<"terimakasih sudah menggunakan program ini"<<endl;
+                break;
+                default:
+                cout<<"pilihan tidak valid"<<endl;
+            }
             return true;
+        }while(pilihan!=7);
         }
         else{
             cout<<"login gagal"<<endl;
@@ -433,7 +529,7 @@ void menuutama(){
             default:
                 cout << "Pilihan tidak valid." << endl;
         }
-    } while (pilihan != 4);
+    } while (pilihan != 3);
 }
 
 int main() {
