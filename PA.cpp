@@ -2,6 +2,7 @@
 #include <fstream>
 #include "json.hpp"  
 #include <string>
+#include <set>
 
 using json = nlohmann::json;
 using namespace std;
@@ -276,8 +277,136 @@ void menghapusbarang(string* cari_nama, bool* ketemu) {
     }
 }
 
-// void tarikuang(){ }
+void tarikuang(string* username, string* password, string* nohp, int* dana) { // AI (PELAJARI DAN UBAH)
+    json dataUser, dataBarang, dataPembelian;
+    int totalTarik = 0;
 
+    // Baca data pembelian
+    ifstream inFilePembelian("data_pembelian.json");
+    if (inFilePembelian.is_open()) {
+        inFilePembelian >> dataPembelian;
+        inFilePembelian.close();
+    } else {
+        cout << "Belum ada data pembelian.\n";
+        return;
+    }
+
+    // Baca data penjual
+    ifstream inFileUser("data_user.json");
+    if (inFileUser.is_open()) {
+        inFileUser >> dataUser;
+        inFileUser.close();
+    } else {
+        cout << "Gagal membuka file data_user.json\n";
+        return;
+    }
+
+    // Baca nama barang dari data_barang.json
+    ifstream inFileBarang("data_barang.json");
+    if (inFileBarang.is_open()) {
+        inFileBarang >> dataBarang;
+        inFileBarang.close();
+    }
+
+    // Kumpulkan penghasilan dari semua barang
+    for (const auto& pembelian : dataPembelian["pembelian"]) {
+        string namaBarang = pembelian["nama_barang"];
+        int totalHarga = pembelian["total_harga"];
+
+        // Cek apakah barang ini milik penjual saat ini
+        for (const auto& barang : dataBarang["barang"]) {
+            if (barang["nama"] == namaBarang) {
+                // Dianggap semua barang di data_barang.json adalah milik penjual login saat ini
+                totalTarik += totalHarga;
+                break;
+            }
+        }
+    }
+
+    // Update saldo penjual
+    for (auto& seller : dataUser["penjual"]) {
+        if (seller["username"] == *username && seller["password"] == *password && seller["nohp"] == *nohp) {
+            if (seller.contains("dana") && seller["dana"].is_number()) {
+                seller["dana"] = seller["dana"].get<int>() + totalTarik;
+            } else {
+                seller["dana"] = totalTarik;
+            }
+            *dana = seller["dana"];
+            break;
+        }
+    }
+
+    // Simpan ke file
+    ofstream outFile("data_user.json");
+    outFile << dataUser.dump(4);
+    outFile.close();
+
+    cout << "Saldo berhasil ditarik dari pembelian: Rp" << totalTarik << endl;
+    cout << "Saldo total penjual sekarang: Rp" << *dana << endl;
+}
+
+
+void laporanpenjualan(string* username) {
+    json dataPembelian, dataBarang;
+    map<string, pair<int, int>> laporan; // nama_barang -> <jumlah, total>
+
+    // Baca data barang
+    ifstream inFileBarang("data_barang.json");
+    if (inFileBarang.is_open()) {
+        inFileBarang >> dataBarang;
+        inFileBarang.close();
+    } else {
+        cout << "Gagal membuka data_barang.json\n";
+        return;
+    }
+
+    // Baca data pembelian
+    ifstream inFilePembelian("data_pembelian.json");
+    if (inFilePembelian.is_open()) {
+        inFilePembelian >> dataPembelian;
+        inFilePembelian.close();
+    } else {
+        cout << "Belum ada data pembelian.\n";
+        return;
+    }
+
+    // Ambil semua barang milik penjual
+     set<string> barangPenjual;
+    for (const auto& barang : dataBarang["barang"]) {
+        if (barang.contains("penjual") && barang["penjual"] == *username) {
+            barangPenjual.insert(barang["nama"]);
+        }
+    }
+
+    // Hitung total penjualan berdasarkan barang penjual
+    for (const auto& beli : dataPembelian["pembelian"]) {
+        string nama = beli["nama_barang"];
+        int jumlah = beli["jumlah"];
+        int total = beli["total_harga"];
+
+        if (barangPenjual.count(nama)) {
+            laporan[nama].first += jumlah;
+            laporan[nama].second += total;
+        }
+    }
+
+    // Tampilkan laporan
+    cout << "\n=== Laporan Penjualan untuk Penjual: " << *username << " ===\n";
+    if (laporan.empty()) {
+        cout << "Belum ada penjualan untuk barang Anda.\n";
+    } else {
+        cout << left << setw(20) << "Nama Barang"
+             << setw(10) << "Jumlah"
+             << setw(15) << "Total Harga" << endl;
+        cout << string(45, '-') << endl;
+
+        for (const auto& entry : laporan) {
+            cout << left << setw(20) << entry.first
+                 << setw(10) << entry.second.first
+                 << "Rp" << entry.second.second << endl;
+        }
+    }
+}
 
     // ----------------------------------------
     // |    KELOMPOK LAIN GPT ITU BANG        |
@@ -296,7 +425,7 @@ void menghapusbarang(string* cari_nama, bool* ketemu) {
 
 
 
-void topup(string* username, string* password, string* nohp, int* jumlahtopup, int* dana){
+void topup(string* username, string* password, string* nohp, int* jumlahtopup, int* dana){ 
     json data;
     ifstream inFile("data_user.json");
 
@@ -341,8 +470,175 @@ void topup(string* username, string* password, string* nohp, int* jumlahtopup, i
 }
 
         
+void beli(string* username, string* password, string* nohp, int* dana) { // AI (PELAJARI DAN UBAH)
+    json dataBarang, dataUser, dataPembelian;
+    string namaBarang;
+    int jumlahBeli;
+    bool found = false;
+
+    // Baca data barang
+    ifstream inFileBarang("data_barang.json");
+    if (inFileBarang.is_open()) {
+        inFileBarang >> dataBarang;
+        inFileBarang.close();
+    } else {
+        cout << "Gagal membuka data barang.\n";
+        return;
+    }
+
+    // Baca data user
+    ifstream inFileUser("data_user.json");
+    if (inFileUser.is_open()) {
+        inFileUser >> dataUser;
+        inFileUser.close();
+    } else {
+        cout << "Gagal membuka data user.\n";
+        return;
+    }
+
+    // Baca data pembelian (jika ada)
+    ifstream inFilePembelian("data_pembelian.json");
+    if (inFilePembelian.is_open()) {
+        inFilePembelian >> dataPembelian;
+        inFilePembelian.close();
+    }
+
+    bool found2 = false;
+    for (auto& user : dataUser["pembeli"]) {
+        if (user["username"] == *username && user["password"] == *password && user["nohp"] == *nohp) {
+            *dana = user["dana"];
+            found2 = true;
+            break;
+        }
+    }
+    
+    // Tampilkan daftar barang
+    cout << "\n=== Daftar Barang ===\n";
+    for (const auto& barang : dataBarang["barang"]) {
+        cout << "Nama: " << barang["nama"] << ", Harga: " << barang["harga"]
+            << ", Stok: " << barang["stok"] << ", Berat: " << barang["berat"] << endl;
+    }
+
+    cout << "\nMasukkan nama barang yang ingin dibeli: ";
+    cin >> namaBarang;
+
+    for (auto& barang : dataBarang["barang"]) {
+        if (barang["nama"] == namaBarang) {
+            found = true;
+            cout << "Masukkan jumlah yang ingin dibeli: ";
+            cin >> jumlahBeli;
+
+            int totalHarga = jumlahBeli * int(barang["harga"]);
+            cout << "Total harga : " << totalHarga << endl;
+            cout << "Dana Anda : " << *dana << endl;
+
+            // Validasi
+            if (jumlahBeli > int(barang["stok"])) {
+                cout << "Stok tidak cukup!\n";
+                return;
+            }
+
+            if (*dana < totalHarga) {
+                cout << "Saldo tidak cukup!\n";
+                return;
+            }
+
+            // Kurangi stok dan saldo
+            barang["stok"] = int(barang["stok"]) - jumlahBeli;
+            *dana -= totalHarga;
+
+            // Update saldo pembeli di file
+            for (auto& user : dataUser["pembeli"]) {
+                if (user["username"] == *username && user["password"] == *password && user["nohp"] == *nohp) {
+                    user["dana"] = *dana;
+                    break;
+                }
+            }
+
+            // Catat pembelian
+            dataPembelian["pembelian"].push_back({
+                {"username", *username},
+                {"nama_barang", namaBarang},
+                {"jumlah", jumlahBeli},
+                {"total_harga", totalHarga}
+            });
+
+            cout << "Pembelian berhasil! Total harga: " << totalHarga << ", Sisa saldo: " << *dana << endl;
+            break;
+        }
+    }
+
+    if (!found) {
+        cout << "Barang tidak ditemukan.\n";
+        return;
+    }
+
+    // Simpan perubahan ke file
+    ofstream outFileBarang("data_barang.json");
+    outFileBarang << dataBarang.dump(4);
+    outFileBarang.close();
+
+    ofstream outFileUser("data_user.json");
+    outFileUser << dataUser.dump(4);
+    outFileUser.close();
+
+    ofstream outFilePembelian("data_pembelian.json");
+    outFilePembelian << dataPembelian.dump(4);
+    outFilePembelian.close();
+}
 
 
+
+void editdetail (string* cari_nama) { // MENGEDIT BARANG (PENJUAL)
+    ifstream inFile("data_user.json");
+    json data;
+    if (inFile.is_open()) {
+        inFile >> data;
+        inFile.close();
+    } else {
+        cout << "Gagal membuka file data_user.json" << endl;
+        return;
+    }
+
+    ketemu = false;
+    cout << "\n=== Edit Detail User ===" << endl;
+    cout << "Masukkan nama barang yang ingin diubah: ";
+    cin >> *cari_nama;
+
+    for (auto& item : data["barang"]) {
+        if (item["nama"] == *cari_nama) {
+            ketemu = true;
+
+            string nomor_baru, password_baru;
+
+            cout << "Masukkan nomor baru: ";
+            cin >> nomor_baru;
+            cout << "Masukkan password baru: ";
+            cin >> password_baru;
+
+            item["nomor"] = nomor_baru;
+            item["password"] = password_baru;
+
+            break;
+        }
+    }
+
+    if (!ketemu) {
+        cout << "Barang dengan nama \"" << *cari_nama << "\" tidak ditemukan!!" << endl;
+    } 
+    
+    else {
+        ofstream outFile("data_bara.json");
+        if (outFile.is_open()) {
+            outFile << data.dump(4);
+            outFile.close();
+            cout << "Data barang berhasil diubah!!" << endl;
+        } 
+        else {
+            cout << "Gagal menyimpan perubahan ke file data_user.json" << endl;
+        }
+    }
+}
 
 
 ///////////////////////////////////////////////////////
@@ -419,9 +715,9 @@ bool login(string* username, string* password,string* penjual, string* pwsell, i
     // |                                      |
     // |--------------------------------------|
     case 1:
-        cout <<"masukkan username" <<endl;
+        cout << "masukkan username" <<endl;
         cin >> penjual[*jumlah_user];
-        cout <<"masukkan password" <<endl;
+        cout << "masukkan password" <<endl;
         cin >> pwsell[*jumlah_user];
         cout << "masukkan no hp" <<endl;
         cin >> *hppj;
@@ -434,8 +730,7 @@ bool login(string* username, string* password,string* penjual, string* pwsell, i
             cout<<"3. edit barang"<<endl;
             cout<<"4. hapus barang"<<endl;
             cout<<"5. menarik saldo"<<endl;
-            cout<<"6. menampilkan rating"<<endl;
-            cout<<"7. keluar"<<endl;
+            cout<<"6. keluar"<<endl;
             cout<<"masukkan pilihan: ";
             cin>>pilihan;
             switch (pilihan){
@@ -447,19 +742,20 @@ bool login(string* username, string* password,string* penjual, string* pwsell, i
                     break;
                 case 3:
                     editbarang(&cari_nama);
-                break;
+                    break;
                 case 4:
                     menghapusbarang(&cari_nama,&ketemu);
                     break;
                 case 5:
-                    cout<<"nanti ada narik saldo";
-                break;
+                    tarikuang(username, password, nohp, &dana);
+                    break;
                 case 6:
-                    cout<<"update, bintang 5"<<endl;
-                break;
+                    laporanpenjualan(&penjual[*jumlah_user]);
+                    break;
+
                 case 7:
                     cout<<"terimakasih sudah menggunakan program ini"<<endl;
-                break;
+                    break;
                 default:
                 cout<<"pilihan tidak valid"<<endl;
             }}while(pilihan!=7);
@@ -499,13 +795,16 @@ bool login(string* username, string* password,string* penjual, string* pwsell, i
             switch (pilihan){
                 case 1:
                     topup(username, password, nohp, &jumlahtopup, &dana);
-                break;
-                // case 2:
-                //     beli(nama, stok, berat, harga);
+                    break;
+                case 2:
+                    beli(username, password, nohp, &dana);
+                    break;
+                // case 3:
+                //     aka
                 // break;
-                case 3:
-                cout<<"terimakasih sudah menggunakan program ini"<<endl;
-                break;
+                case 4:
+                    cout<<"terimakasih sudah menggunakan program ini"<<endl;
+                    break;
                 default:
                 cout<<"pilihan tidak valid"<<endl;
             }
@@ -521,6 +820,8 @@ bool login(string* username, string* password,string* penjual, string* pwsell, i
     case 3:
         cout << "Keluar dari program." << endl;
         break;
+
+    break;
 
     default:
         cout << "Pilihan tidak valid." << endl;
