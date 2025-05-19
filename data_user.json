@@ -1,18 +1,17 @@
 {
     "pembeli": [
         {
-            "password": "culun",
-            "username": "andini"
+            "dana": 48000,
+            "nohp": "08",
+            "password": "49",
+            "username": "andin"
         }
     ],
     "penjual": [
         {
-            "password": "dini",
-            "username": "dini"
-        },
-        {
-            "password": "35",
-            "username": "ahnaf"
+            "nohp": "083152142438",
+            "password": "25",
+            "username": "dwi"
         }
     ]
 }

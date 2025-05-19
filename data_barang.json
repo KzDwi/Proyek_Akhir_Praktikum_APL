@@ -1,16 +1,22 @@
 {
     "barang": [
         {
-            "berat": 1,
-            "harga": 3000,
-            "nama": "cabe",
-            "stok": 500
+            "berat": 426,
+            "harga": 8000,
+            "nama": "ember",
+            "stok": 3
         },
         {
-            "berat": 1,
-            "harga": 24000,
-            "nama": "kedelai",
-            "stok": 40
+            "berat": 426,
+            "harga": 8000,
+            "nama": "embeer",
+            "stok": 3
+        },
+        {
+            "berat": 426,
+            "harga": 8000,
+            "nama": "embeeer",
+            "stok": 3
         }
     ]
 }

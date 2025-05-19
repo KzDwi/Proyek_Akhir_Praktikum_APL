@@ -522,8 +522,6 @@ bool login(string* username, string* password,string* penjual, string* pwsell, i
         cout << "Keluar dari program." << endl;
         break;
 
-    break;
-
     default:
         cout << "Pilihan tidak valid." << endl;
         break;
