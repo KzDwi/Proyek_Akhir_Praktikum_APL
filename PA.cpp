@@ -723,8 +723,9 @@ bool login(string* username, string* password,string* penjual, string* pwsell, i
         cout << "masukkan no hp" <<endl;
         cin >> *hppj;
         if (verifikasiuser()){
+            cout<<"Berhasil Login Ke Menu Admin!!" << endl;
+
             do{
-            cout<<"login berhasil"<<endl;
             cout<<"silhakan pilih menu penjual"<<endl;
             cout<<"1. tambah barang"<<endl;
             cout<<"2. lihat barang"<<endl;
@@ -787,12 +788,12 @@ bool login(string* username, string* password,string* penjual, string* pwsell, i
         cin.ignore();
         if (verifikasiuser()){
             cout<<"login berhasil"<<endl;
-            
+
             do{
             cout<<"Silahkan pilih menu"<<endl;
             cout<<"1. Top up dana"<<endl;
             cout<<"2. Beli barang"<<endl;
-            cout<<"3. Keluar"<<endl;
+            cout<<"4. Keluar"<<endl;
             cout<<"Masukkan pilihan: ";
             cin>>pilihan;
             switch (pilihan){
@@ -809,7 +810,7 @@ bool login(string* username, string* password,string* penjual, string* pwsell, i
                     cout<<"Anda logout menuju menu login"<<endl;
                     return true;
                 default:
-                cout<<"pilihan tidak valid"<<endl;
+                    cout<<"pilihan tidak valid"<<endl;
                 }
             } while(pilihan < 7);
         }
