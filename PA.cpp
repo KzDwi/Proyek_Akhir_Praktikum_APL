@@ -246,15 +246,7 @@ void menghapusbarang(string* cari_nama, bool* ketemu) {
     cout << "Masukkan nama barang yang ingin dihapus: ";
     cin >> *cari_nama;
 
-    // for (auto it = data["barang"].begin(); it != data["barang"].end(); ++it) {
-    //     if ((*it)["nama"] == *cari_nama) {
-    //         data["barang"].erase(it);
-    //         *ketemu = true;
-    //         break;
-    //     }
-    // }
-
-    for (size_t i = 0; i < list.size(); ++i) {
+    for (int i = 0; i < list.size(); ++i) {
         if (list[i]["nama"] == *cari_nama) {
             list.erase(list.begin() + i);
             *ketemu = true;
@@ -757,10 +749,11 @@ bool login(string* username, string* password,string* penjual, string* pwsell, i
 
                 case 7:
                     cout<<"terimakasih sudah menggunakan program ini"<<endl;
+                    return true;
                     break;
                 default:
                 cout<<"pilihan tidak valid"<<endl;
-                }
+            }
             } while(pilihan != 10);
         }
         
