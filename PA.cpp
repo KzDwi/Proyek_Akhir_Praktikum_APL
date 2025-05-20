@@ -587,11 +587,13 @@ void beli(string* username, string* password, string* nohp, int* dana) { // AI (
     outFilePembelian.close();
 }
 
-
-
-void editdetail (string* cari_nama) { // MENGEDIT BARANG (PENJUAL)
+// V In Development/ Work In Progress
+void editdetail(string *username, string *password, string *nohp) { // MENGEDIT DETAIL USER (PEMBELI)
     ifstream inFile("data_user.json");
     json data;
+    bool verif = false;
+    int verifAttempt = 0;
+
     if (inFile.is_open()) {
         inFile >> data;
         inFile.close();
@@ -600,45 +602,70 @@ void editdetail (string* cari_nama) { // MENGEDIT BARANG (PENJUAL)
         return;
     }
 
-    ketemu = false;
     cout << "\n=== Edit Detail User ===" << endl;
-    cout << "Masukkan nama barang yang ingin diubah: ";
-    cin >> *cari_nama;
+    cout << "Masukkan Password Anda : ";
+    cin >> *password;
 
-    for (auto& item : data["barang"]) {
-        if (item["nama"] == *cari_nama) {
-            ketemu = true;
-
+    // Cari pengguna berdasarkan username dan password
+    for (auto& detail : data["pembeli"]) {
+        if (detail["username"] == *username && detail["password"] == *password) {
+            verif = true;
             string nomor_baru, password_baru;
 
-            cout << "Masukkan nomor baru: ";
-            cin >> nomor_baru;
-            cout << "Masukkan password baru: ";
+            cout << "[Ketik \"x\" jika tidak ingin dirubah]" << endl;
+            cout << "Masukkan Password Baru: " << endl;
             cin >> password_baru;
+            cout << "[Ketik \"x\" jika tidak ingin dirubah]" << endl;
+            cout << "Masukkan Nomor HP Baru: " << endl;
+            cin >> nomor_baru;
+            cin.ignore();
 
-            item["nomor"] = nomor_baru;
-            item["password"] = password_baru;
+            // Cek dan ubah detail
+            if (password_baru != "x" && password_baru != " ") {
+                detail["password"] = password_baru;
+                }
+            if (nomor_baru != "x" && nomor_baru != " ") {
+                detail["nohp"] = nomor_baru;
+                }
 
-            break;
+            ofstream outFile("data_user.json");
+            if (outFile.is_open()) {
+                outFile << data.dump(4);
+                outFile.close();
+                cout << "Detail berhasil diubah!" << endl;
+                return;
+                } 
+            else {
+                cout << "Gagal menyimpan perubahan ke file data_user.json" << endl;
+                }
+            return;
         }
     }
 
-    if (!ketemu) {
-        cout << "Barang dengan nama \"" << *cari_nama << "\" tidak ditemukan!!" << endl;
-    } 
-    
-    else {
-        ofstream outFile("data_bara.json");
-        if (outFile.is_open()) {
-            outFile << data.dump(4);
-            outFile.close();
-            cout << "Data barang berhasil diubah!!" << endl;
-        } 
-        else {
-            cout << "Gagal menyimpan perubahan ke file data_user.json" << endl;
+    // Loop Attempt
+    while (!verif && verifAttempt < 3) {
+        verifAttempt++;
+        cout << "Password salah, silahkan ulangi kembali: ";
+        cin >> *password;
+
+        for (auto& detail : data["pembeli"]) {
+            if (detail["username"] == *username && detail["password"] == *password) {
+                verif = true;
+                break; // Break Loop
+            }
         }
+
+        if (!verif && verifAttempt < 3) {
+            cout << "Percobaan " << verifAttempt << " dari 3 gagal." << endl;
+        }
+    }
+    if (!verif) {
+        cout << "Terlalu banyak percobaan, kembali ke menu pembeli. . ." << endl;
     }
 }
+
+
+// ^ Work In Progress
 
 
 ///////////////////////////////////////////////////////
@@ -784,32 +811,32 @@ bool login(string* username, string* password,string* penjual, string* pwsell, i
         cin>>*nohp;
         cin.ignore();
         if (verifikasiuser()){
-            do{
             cout<<"login berhasil"<<endl;
-            cout<<"Silahkan pilih menu"<<endl;
-            cout<<"1. Top up dana"<<endl;
-            cout<<"2. Beli barang"<<endl;
-            cout<<"3. Keluar"<<endl;
-            cout<<"Masukkan pilihan: ";
-            cin>>pilihan;
-            switch (pilihan){
-                case 1:
-                    topup(username, password, nohp, &jumlahtopup, &dana);
-                    break;
-                case 2:
-                    beli(username, password, nohp, &dana);
-                    break;
-                // case 3:
-                //     aka
-                // break;
-                case 4:
-                    cout<<"terimakasih sudah menggunakan program ini"<<endl;
-                    break;
-                default:
-                cout<<"pilihan tidak valid"<<endl;
-            }
-            return true;
-        }while(pilihan!=7);
+            do {
+                cout<<"Silahkan pilih menu"<<endl;
+                cout<<"1. Top up dana"<<endl;
+                cout<<"2. Beli barang"<<endl;
+                cout<<"3. Keluar"<<endl;
+                cout<<"Masukkan pilihan: ";
+                cin>>pilihan;
+                switch (pilihan){
+                    case 1:
+                        topup(username, password, nohp, &jumlahtopup, &dana);
+                        continue;
+                    case 2:
+                        beli(username, password, nohp, &dana);
+                        continue;
+                    case 3:
+                        editdetail(username, password, nohp);
+                        continue;
+                    case 4:
+                        cout<<"terimakasih sudah menggunakan program ini"<<endl;
+                        break;
+                    default:
+                        cout<<"pilihan tidak valid"<<endl;
+                }
+                return true;
+            }while(pilihan!=7);
         }
         else{
             cout<<"login gagal"<<endl;
