@@ -1,10 +1,16 @@
 {
     "pembeli": [
         {
-            "dana": 48000,
+            "dana": 44000,
             "nohp": "08",
             "password": "49",
             "username": "andin"
+        },
+        {
+            "dana": 100000,
+            "nohp": "5",
+            "password": "5",
+            "username": "r"
         }
     ],
     "penjual": [

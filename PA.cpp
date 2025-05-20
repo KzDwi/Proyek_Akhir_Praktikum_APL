@@ -17,7 +17,7 @@ bool ketemu;
 int jumlahtopup, dana = 0;
 
 ///////////////////////////////////////////////////////
-/// DATA PENJUAL 
+/// DATA PENJUAL / PEMBELI
 ///
 ///
 ///////////////////////////////////////////////////////
@@ -503,11 +503,13 @@ void beli(string* username, string* password, string* nohp, int* dana) { // AI (
         inFilePembelian.close();
     }
 
+    // Mengimpor Dana Pada data_user.json ke pada user
     bool found2 = false;
     for (auto& user : dataUser["pembeli"]) {
         if (user["username"] == *username && user["password"] == *password && user["nohp"] == *nohp) {
             *dana = user["dana"];
             found2 = true;
+            cout << "Dana Anda Saat Ini Adalah: " << *dana << endl;
             break;
         }
     }
@@ -519,9 +521,9 @@ void beli(string* username, string* password, string* nohp, int* dana) { // AI (
             << ", Stok: " << barang["stok"] << ", Berat: " << barang["berat"] << endl;
     }
 
+    // User Membeli Barang Dan Mencatatnya Pada data_pembelian.json
     cout << "\nMasukkan nama barang yang ingin dibeli: ";
     cin >> namaBarang;
-
     for (auto& barang : dataBarang["barang"]) {
         if (barang["nama"] == namaBarang) {
             found = true;
@@ -529,8 +531,7 @@ void beli(string* username, string* password, string* nohp, int* dana) { // AI (
             cin >> jumlahBeli;
 
             int totalHarga = jumlahBeli * int(barang["harga"]);
-            cout << "Total harga : " << totalHarga << endl;
-            cout << "Dana Anda : " << *dana << endl;
+            cout << "Total harga: " << totalHarga << endl;
 
             // Validasi
             if (jumlahBeli > int(barang["stok"])) {
@@ -563,7 +564,7 @@ void beli(string* username, string* password, string* nohp, int* dana) { // AI (
                 {"total_harga", totalHarga}
             });
 
-            cout << "Pembelian berhasil! Total harga: " << totalHarga << ", Sisa saldo: " << *dana << endl;
+            cout << "Pembelian berhasil! Total harga: " << totalHarga << ", Sisa dana anda adalah: " << *dana << endl;
             break;
         }
     }
@@ -701,7 +702,7 @@ bool login(string* username, string* password,string* penjual, string* pwsell, i
     cout << "selamat datang di menu login" << endl;
     cout << "pilih menu login" << endl;
     cout << "1. login sebagai penjual" << endl;
-    cout << "2.login sebagai pembeli" << endl;
+    cout << "2. login sebagai pembeli" << endl;
     cout << "keluar" << endl;
     cout << "pilihan anda: ";
     cin >> pilihan;
@@ -758,9 +759,10 @@ bool login(string* username, string* password,string* penjual, string* pwsell, i
                     break;
                 default:
                 cout<<"pilihan tidak valid"<<endl;
-            }}while(pilihan!=7);
-            return true;
+                }
+            } while(pilihan != 10);
         }
+        
         else{
             cout<<"login gagal"<<endl;
             cout<<"username atau password salah"<<endl;
@@ -784,8 +786,9 @@ bool login(string* username, string* password,string* penjual, string* pwsell, i
         cin>>*nohp;
         cin.ignore();
         if (verifikasiuser()){
-            do{
             cout<<"login berhasil"<<endl;
+            
+            do{
             cout<<"Silahkan pilih menu"<<endl;
             cout<<"1. Top up dana"<<endl;
             cout<<"2. Beli barang"<<endl;
@@ -803,25 +806,23 @@ bool login(string* username, string* password,string* penjual, string* pwsell, i
                 //     aka
                 // break;
                 case 4:
-                    cout<<"terimakasih sudah menggunakan program ini"<<endl;
-                    break;
+                    cout<<"Anda logout menuju menu login"<<endl;
+                    return true;
                 default:
                 cout<<"pilihan tidak valid"<<endl;
-            }
-            return true;
-        }while(pilihan!=7);
+                }
+            } while(pilihan < 7);
         }
-        else{
-            cout<<"login gagal"<<endl;
+        else {
+            cout<<"Login gagal"<<endl;
             cout<<"username atau password salah"<<endl;
             return false;
         }
         break;
+
     case 3:
         cout << "Keluar dari program." << endl;
         break;
-
-    break;
 
     default:
         cout << "Pilihan tidak valid." << endl;

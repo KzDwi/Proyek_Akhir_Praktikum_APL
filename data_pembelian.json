@@ -1,0 +1,10 @@
+{
+    "pembelian": [
+        {
+            "jumlah": 2,
+            "nama_barang": "ember",
+            "total_harga": 16000,
+            "username": "andin"
+        }
+    ]
+}
