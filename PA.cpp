@@ -771,12 +771,12 @@ bool login(string* username, string* password,string* penjual, string* pwsell, i
 
                 case 7:
                     cout<<"terimakasih sudah menggunakan program ini"<<endl;
+                    return true;
                     break;
                 default:
                 cout<<"pilihan tidak valid"<<endl;
                 }
             }while(pilihan!=7);
-        return true;
         }
         else{
             cout<<"login gagal"<<endl;
@@ -818,12 +818,11 @@ bool login(string* username, string* password,string* penjual, string* pwsell, i
                         editdetail(username, password, nohp);
                         continue;
                     case 4:
-                        cout<<"terimakasih sudah menggunakan program ini"<<endl;
-                        break;
+                        cout<<"Kembali ke menu Login"<<endl;
+                        return true;
                     default:
                         cout<<"pilihan tidak valid"<<endl;
                 }
-                return true;
             }while(pilihan!=7);
         }
         else{
