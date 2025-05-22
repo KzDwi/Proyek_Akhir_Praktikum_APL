@@ -4,6 +4,8 @@
 #include <string>
 #include <set>
 
+// Gacor
+
 using json = nlohmann::json;
 using namespace std;
 
