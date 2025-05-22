@@ -652,10 +652,70 @@ void editdetail(string *username, string *password, string *nohp) { // MENGEDIT 
 // ^ Ubah Detail Pembeli (20 Mei 2025)
 
 void hapuspesanan(string *username, string *password){
-    ifstream inFile("data_pembelian.json");
-    json data;
-    // 
+    ifstream inFile1("data_pembelian.json");
+    ifstream inFile2("data_user.json");
+    json dataP, dataU;
+    string cari_id;
+    int pilihan;
+    if (inFile1.is_open()){
+        inFile1 >> dataP;
+        inFile1.close();
+    } else {
+        cout << "Gagal membuka file data_pembelian.json" << endl;
+        return;
+    }
+    if (inFile2.is_open()){
+        inFile2 >> dataU;
+        inFile2.close();
+    } else {
+        cout << "Gagal membuka file data_user.json" << endl;
+        return;
+    }
+
+    cout << "\n== Data Pesanan ==" << endl;
+    for (auto& pesan : dataP["pembelian"]) {
+        if (pesan["username"] != *username){
+            continue;
+        }
+        else {
+            cout << "No. Pesanan: " << pesan["UID"] << endl;
+            cout << "nama: " << pesan["nama_barang"] << endl;
+            cout << "jumlah  : " << pesan["jumlah"] << endl;
+            cout << "harga: " << pesan["total_harga"] << endl;
+            cout << "status: " << pesan["Status"] << endl;
+        }
+    }
+    cout << "[Masukkan 0 untuk kembali]" << endl;
+    cout << "Pilih No. Pesanan yang ingin dihapus : " << endl;
+    cin >> pilihan;
+    auto& pesanan = dataP["pembelian"];
+    bool terhapus = false;
+            for (auto it = pesanan.begin(); it != pesanan.end(); ) {
+                if ((*it)["UID"] == pilihan && (*it)["username"] == *username && (*it)["Status"] == "Dipesan") {
+                    it = pesanan.erase(it); // Menghapus objek dan mendapatkan iterator baru
+                    cout << "Pesanan dengan No. Pesanan " << pilihan << " telah dihapus" << endl;
+                    terhapus = true;
+                    break;
+                } 
+                else {
+                    ++it;
+                }
+                break;
+            }
+            if (pilihan != 0 && !terhapus){
+                cout << "Nomor Pesanan Tidak Sesuai" << endl;
+            }
+    ofstream outFile1("data_pembelian.json");
+    outFile1 << dataP.dump(4);
+    outFile1.close();
 }
+
+    // bool found = false;
+    // for (auto& pesan : dataP["pembelian"]){
+    //     if (pesan["UID"] == cari_id && pesan["username"] == *username){
+    //         // 
+    //     }
+    // }
 
 
 
@@ -804,7 +864,9 @@ bool login(string* username, string* password,string* penjual, string* pwsell, i
                 cout<<"Silahkan pilih menu"<<endl;
                 cout<<"1. Top up dana"<<endl;
                 cout<<"2. Beli barang"<<endl;
-                cout<<"3. Keluar"<<endl;
+                cout<<"3. Ubah Detail"<<endl;
+                cout<<"4. Hapus barang"<<endl;
+                cout<<"5. Keluar"<<endl;
                 cout<<"Masukkan pilihan: ";
                 cin>>pilihan;
                 switch (pilihan){
@@ -818,6 +880,9 @@ bool login(string* username, string* password,string* penjual, string* pwsell, i
                         editdetail(username, password, nohp);
                         continue;
                     case 4:
+                        hapuspesanan(username, password);
+                        continue;
+                    case 5:
                         cout<<"Kembali ke menu Login"<<endl;
                         return true;
                     default:
