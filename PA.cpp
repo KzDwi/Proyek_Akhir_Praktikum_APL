@@ -422,7 +422,7 @@ void topup(string* username, string* password, string* nohp, int* jumlahtopup, i
 
     bool found = false;
     for (auto& user : data["pembeli"]) {
-        if (user["username"] == *username && user["password"] == *password && user["nohp"] == *nohp) {
+        if (user["username"] == *username && user["password"] == *password) {
             cout << "Masukkan jumlah top up: ";
             cin >> *jumlahtopup;
 
@@ -503,6 +503,14 @@ void beli(string* username, string* password, string* nohp, int* dana) { // AI (
             << ", Stok: " << barang["stok"] << ", Berat: " << barang["berat"] << endl;
     }
 
+    int maxUID = 0;
+    for (const auto& pesan : dataPembelian["pembelian"]) {
+        int currentUID = pesan["UID"];
+        if (currentUID > maxUID) {
+            maxUID = currentUID;
+        }
+    }
+
     cout << "\nMasukkan nama barang yang ingin dibeli: ";
     cin >> namaBarang;
     for (auto& barang : dataBarang["barang"]) {
@@ -539,7 +547,9 @@ void beli(string* username, string* password, string* nohp, int* dana) { // AI (
             }
 
             // Catat pembelian
+            maxUID++;
             dataPembelian["pembelian"].push_back({
+                {"UID", maxUID},
                 {"username", *username},
                 {"nama_barang", namaBarang},
                 {"jumlah", jumlahBeli},
