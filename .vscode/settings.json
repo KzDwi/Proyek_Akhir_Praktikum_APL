@@ -59,6 +59,11 @@
   "files.associations": {
     "ostream": "cpp",
     "iostream": "cpp",
-    "fstream": "cpp"
+    "fstream": "cpp",
+    "array": "cpp",
+    "string": "cpp",
+    "string_view": "cpp",
+    "ranges": "cpp",
+    "span": "cpp"
   }
 }

@@ -1,22 +1,25 @@
 {
     "barang": [
         {
-            "berat": 426,
-            "harga": 8000,
-            "nama": "ember",
-            "stok": 3
+            "Toko": "5",
+            "berat": 100,
+            "harga": 1000,
+            "nama": "Apel Enak",
+            "stok": 100
         },
         {
-            "berat": 426,
-            "harga": 8000,
-            "nama": "embeer",
-            "stok": 2
+            "Toko": "6",
+            "berat": 5,
+            "harga": 100000,
+            "nama": "mebel 3",
+            "stok": 20
         },
         {
-            "berat": 12,
-            "harga": 7000,
-            "nama": "Kusuka",
-            "stok": 0
+            "Toko": "5",
+            "berat": 100,
+            "harga": 100,
+            "nama": "ret",
+            "stok": 30
         }
     ]
 }
