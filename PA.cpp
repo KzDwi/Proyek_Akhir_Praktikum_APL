@@ -21,6 +21,7 @@ int percobaan=0;
 int pilihan, namabr, stokbr, hargabr, beratbr;
 bool ketemu;
 int jumlahtopup, dana = 0;
+void menuutama();
 
 struct InputBarang
 {
@@ -1013,7 +1014,8 @@ void regis(string *username, string* password,string* penjual, string* pwsell, i
 
     case 3:
         cout << "Keluar dari program." << endl;
-    break;
+        menuutama();
+        break;
     default:
         cout << "Pilihan tidak valid." << endl;
         break;
@@ -1078,13 +1080,13 @@ bool login(string* username, string* password,string* penjual, string* pwsell, i
                     konfirmasiPesananAdmin(usernameadmin);
                     break;
                 case 8:
-                    cout<<"terimakasih sudah menggunakan program ini"<<endl;
-                    return true;
+                    cout<<"logout"<<endl;
+                    menuutama();
                     break;
                 default:
                 cout<<"pilihan tidak valid"<<endl;
                 }
-            }while(pilihan < 9);
+            }while(pilihan != 8 );
         }
         else{
             cout<<"login gagal"<<endl;
@@ -1140,7 +1142,7 @@ bool login(string* username, string* password,string* penjual, string* pwsell, i
                     default:
                         cout<<"pilihan tidak valid"<<endl;
                 }
-            }while(pilihan > 7);
+            }while(pilihan != 6);
         }
         else{
             cout<<"login gagal"<<endl;
@@ -1150,9 +1152,10 @@ bool login(string* username, string* password,string* penjual, string* pwsell, i
         break;
     case 3:
         cout << "Keluar dari program." << endl;
+        menuutama();
         break;
 
-    break;
+    // break;
 
     default:
         cout << "Pilihan tidak valid." << endl;
@@ -1162,7 +1165,7 @@ bool login(string* username, string* password,string* penjual, string* pwsell, i
 }
 
 void menuutama(){ // Menu Utama
-    do {
+    // do {
         cout << "\n=== Menu Utama ===" << endl;
         cout << "1. Daftar Pengguna" << endl;
         cout << "2. login" << endl;
@@ -1182,8 +1185,10 @@ void menuutama(){ // Menu Utama
                 break;
             default:
                 cout << "Pilihan tidak valid." << endl;
+                menuutama();
+        menuutama();
         }
-    } while (pilihan != 3);
+    // } while (pilihan != 3);
 }
 
 // ----------------------------------------

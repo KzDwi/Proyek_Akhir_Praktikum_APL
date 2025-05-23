@@ -35,6 +35,15 @@
             "nama_barang": "ret",
             "total_harga": 1000,
             "username": "r"
+        },
+        {
+            "Status": "Selesai",
+            "Toko": "5",
+            "UID": 7,
+            "jumlah": 5,
+            "nama_barang": "Mebel Murah",
+            "total_harga": 50000,
+            "username": "r"
         }
     ]
 }
