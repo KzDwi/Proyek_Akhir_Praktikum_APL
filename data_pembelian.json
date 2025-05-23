@@ -1,0 +1,20 @@
+{
+    "pembelian": [
+        {
+            "Status": "Sedang Dikirim",
+            "UID": 1,
+            "jumlah": 1,
+            "nama_barang": "ember",
+            "total_harga": 8000,
+            "username": "andin"
+        },
+        {
+            "Status": "Dipesan",
+            "UID": 2,
+            "jumlah": 1,
+            "nama_barang": "embeer",
+            "total_harga": 8000,
+            "username": "andin"
+        }
+    ]
+}
