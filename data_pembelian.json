@@ -1,7 +1,7 @@
 {
     "pembelian": [
         {
-            "Status": "Dipesan",
+            "Status": "Sedang Dikirim",
             "UID": 1,
             "jumlah": 1,
             "nama_barang": "ember",
@@ -9,21 +9,12 @@
             "username": "andin"
         },
         {
-<<<<<<< HEAD
             "Status": "Dipesan",
             "UID": 2,
             "jumlah": 1,
             "nama_barang": "embeer",
             "total_harga": 8000,
             "username": "andin"
-=======
-            "Status": "Dikirim",
-            "UID": 1,
-            "jumlah": 1,
-            "nama_barang": "Kusuka",
-            "total_harga": 7000,
-            "username": "Elfin"
->>>>>>> 038aaf472ff717527fbfe36ddf21cb1f9b854dc3
         }
     ]
 }

@@ -1,16 +1,10 @@
 {
     "pembeli": [
         {
-            "dana": 57000,
+            "dana": 67000,
             "nohp": "2",
             "password": "1",
             "username": "andin"
-        },
-        {
-            "dana": 93000,
-            "nohp": "085163078780",
-            "password": "160217",
-            "username": "Elfin"
         }
     ],
     "penjual": [
@@ -18,12 +12,6 @@
             "nohp": "083152142438",
             "password": "25",
             "username": "dwi"
-        },
-        {
-            "dana": 0,
-            "nohp": "085163078780",
-            "password": "160217",
-            "username": "Elfin"
         }
     ]
 }
