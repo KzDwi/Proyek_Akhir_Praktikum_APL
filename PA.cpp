@@ -1022,7 +1022,7 @@ void regis(string *username, string* password,string* penjual, string* pwsell, i
     }
 
 }
-bool login(string* username, string* password,string* penjual, string* pwsell, int* jumlah_user, int &pilihan, int &percobaan,string*nohp,string*hppj){ // Login
+bool login(string* username, string* password, string* penjual, string* pwsell, int* jumlah_user, int &pilihan, int &percobaan, string* nohp, string* hppj) {
     cout << "\n=== Menu Login ==" << endl;
     cout << "1. Login sebagai penjual" << endl;
     cout << "2. Login sebagai pembeli" << endl;
@@ -1030,34 +1030,42 @@ bool login(string* username, string* password,string* penjual, string* pwsell, i
     cout << "Pilihan anda: ";
     cin >> pilihan;
 
-    switch (pilihan){  
-////// ----------------------------------------
-////// |                                      |
-////// |                                      |
-////// |           MENU PENJUAL               |
-////// |                                      |
-////// |                                      |
-////// |--------------------------------------|
+    if (cin.fail()) {
+        cin.clear();
+        cin.ignore();
+        cout << "Input tidak valid. Masukkan angka." << endl;
+        return login(username, password, penjual, pwsell, jumlah_user, pilihan, percobaan, nohp, hppj);
+    }
+
+    switch (pilihan) {
     case 1:
         cout << "Masukkan username: ";
         cin >> penjual[*jumlah_user];
         cout << "Masukkan password: ";
         cin >> pwsell[*jumlah_user];
-        if (verifikasiuser()){
-            cout<<"Berhasil Login ke Menu Penjual!"<<endl;
-            do{
-            cout<<"\n=== Menu Penjual / Admin ==="<<endl;
-            cout<<"1. tambah barang"<<endl;
-            cout<<"2. lihat barang"<<endl;
-            cout<<"3. edit barang"<<endl;
-            cout<<"4. hapus barang"<<endl;
-            cout<<"5. Cek Penghasilan"<<endl;
-            cout<<"6. Laporan Penjualan"<<endl;
-            cout<<"7. Cek Pesanan Pembeli"<<endl;
-            cout<<"8. Keluar"<<endl;
-            cout<<"Masukkan Pilihan: ";
-            cin>>pilihan;
-            switch (pilihan){
+        if (verifikasiuser()) {
+            cout << "Berhasil Login ke Menu Penjual!" << endl;
+            do {
+                cout << "\n=== Menu Penjual / Admin ===" << endl;
+                cout << "1. tambah barang" << endl;
+                cout << "2. lihat barang" << endl;
+                cout << "3. edit barang" << endl;
+                cout << "4. hapus barang" << endl;
+                cout << "5. Cek Penghasilan" << endl;
+                cout << "6. Laporan Penjualan" << endl;
+                cout << "7. Cek Pesanan Pembeli" << endl;
+                cout << "8. Keluar" << endl;
+                cout << "Masukkan Pilihan: ";
+                cin >> pilihan;
+
+                if (cin.fail()) {
+                    cin.clear();
+                    cin.ignore();
+                    cout << "Input tidak valid. Masukkan angka." << endl;
+                    continue;
+                }
+
+                switch (pilihan) {
                 case 1:
                     barangpenjual(usernameadmin);
                     break;
@@ -1068,7 +1076,7 @@ bool login(string* username, string* password,string* penjual, string* pwsell, i
                     editbarang(&cari_nama, usernameadmin);
                     break;
                 case 4:
-                    menghapusbarang(&cari_nama,&ketemu, usernameadmin);
+                    menghapusbarang(&cari_nama, &ketemu, usernameadmin);
                     break;
                 case 5:
                     tarikuang(usernameadmin, passwordadmin, &dana);
@@ -1080,82 +1088,80 @@ bool login(string* username, string* password,string* penjual, string* pwsell, i
                     konfirmasiPesananAdmin(usernameadmin);
                     break;
                 case 8:
-                    cout<<"logout"<<endl;
+                    cout << "logout" << endl;
                     menuutama();
                     break;
                 default:
-                cout<<"pilihan tidak valid"<<endl;
+                    cout << "pilihan tidak valid" << endl;
                 }
-            }while(pilihan != 8 );
-        }
-        else{
-            cout<<"login gagal"<<endl;
-            cout<<"username atau password salah"<<endl;
+            } while (pilihan != 8);
+        } else {
+            cout << "login gagal" << endl;
+            cout << "username atau password salah" << endl;
             return false;
         }
         break;
 
-////// ----------------------------------------
-////// |                                      |
-////// |                                      |
-////// |           MENU PEMBELI               |
-////// |                                      |
-////// |                                      |
-////// |--------------------------------------|
     case 2:
         cout << "Masukkan username: ";
-        cin>>*username;
+        cin >> *username;
         cout << "Masukkan password: ";
-        cin>>*password;
+        cin >> *password;
         cin.ignore();
-        if (verifikasiuser()){
-            cout<<"login berhasil"<<endl;
+        if (verifikasiuser()) {
+            cout << "login berhasil" << endl;
             do {
-                cout<<"\n=== Menu Pembeli / User ==="<<endl;
-                cout<<"1. Top up dana"<<endl;
-                cout<<"2. Beli barang"<<endl;
-                cout<<"3. Ubah Detail"<<endl;
-                cout<<"4. Hapus Pesanan"<<endl;
-                cout<<"5. Lihat Pesanan"<<endl;
-                cout<<"6. Keluar"<<endl;
-                cout<<"Masukkan Pilihan: ";
-                cin>>pilihan;
-                switch (pilihan){
-                    case 1:
-                        topup(username, password, nohp, &jumlahtopup, &dana, pilihan);
-                        continue;
-                    case 2:
-                        beli(username, password, nohp, &dana);
-                        continue;
-                    case 3:
-                        editdetail(username, password, nohp);
-                        continue;
-                    case 4:
-                        hapuspesanan(username, password);
-                        continue;
-                    case 5:
-                        lihatpesanan(username);
-                        continue;
-                    case 6:
-                        cout<<"Kembali ke menu Login"<<endl;
-                        return true;
-                    default:
-                        cout<<"pilihan tidak valid"<<endl;
+                cout << "\n=== Menu Pembeli / User ===" << endl;
+                cout << "1. Top up dana" << endl;
+                cout << "2. Beli barang" << endl;
+                cout << "3. Ubah Detail" << endl;
+                cout << "4. Hapus Pesanan" << endl;
+                cout << "5. Lihat Pesanan" << endl;
+                cout << "6. Keluar" << endl;
+                cout << "Masukkan Pilihan: ";
+                cin >> pilihan;
+
+                if (cin.fail()) {
+                    cin.clear();
+                    cin.ignore();
+                    cout << "Input tidak valid. Masukkan angka." << endl;
+                    continue;
                 }
-            }while(pilihan != 6);
-        }
-        else{
-            cout<<"login gagal"<<endl;
-            cout<<"username atau password salah"<<endl;
+
+                switch (pilihan) {
+                case 1:
+                    topup(username, password, nohp, &jumlahtopup, &dana, pilihan);
+                    continue;
+                case 2:
+                    beli(username, password, nohp, &dana);
+                    continue;
+                case 3:
+                    editdetail(username, password, nohp);
+                    continue;
+                case 4:
+                    hapuspesanan(username, password);
+                    continue;
+                case 5:
+                    lihatpesanan(username);
+                    continue;
+                case 6:
+                    cout << "Kembali ke menu Login" << endl;
+                    return true;
+                default:
+                    cout << "pilihan tidak valid" << endl;
+                }
+            } while (pilihan != 6);
+        } else {
+            cout << "login gagal" << endl;
+            cout << "username atau password salah" << endl;
             return false;
         }
         break;
+
     case 3:
         cout << "Keluar dari program." << endl;
         menuutama();
         break;
-
-    // break;
 
     default:
         cout << "Pilihan tidak valid." << endl;
@@ -1164,32 +1170,47 @@ bool login(string* username, string* password,string* penjual, string* pwsell, i
     return 0;
 }
 
-void menuutama(){ // Menu Utama
-    // do {
-        cout << "\n=== Menu Utama ===" << endl;
-        cout << "1. Daftar Pengguna" << endl;
-        cout << "2. login" << endl;
-        cout << "3. Keluar" << endl;
-        cout << "Pilihan Anda: ";
-        cin >> pilihan;
-    
-        switch (pilihan) {
-            case 1:
-                regis (&username, &password, penjual, pwsell, &jumlah_user, pilihan,&nohp);
-                break;
-            case 2:
-                login(&username, &password,penjual, pwsell, &jumlah_user, pilihan, percobaan, &nohp, &hppj);
-                break;
-            case 3:
-                cout << "Keluar dari program." << endl;
-                break;
-            default:
-                cout << "Pilihan tidak valid." << endl;
-                menuutama();
-        menuutama();
+
+
+void menuutama() {
+    do {
+        try {
+            cout << "\n=== Menu Utama ===" << endl;
+            cout << "1. Daftar Pengguna" << endl;
+            cout << "2. Login" << endl;
+            cout << "3. Keluar" << endl;
+            cout << "Pilihan Anda: ";
+            
+            cin >> pilihan;
+
+            if (cin.fail()) {
+                cin.clear(); 
+                cin.ignore(); 
+                throw invalid_argument("Input harus berupa angka.");
+            }
+
+            switch (pilihan) {
+                case 1:
+                    regis(&username, &password, penjual, pwsell, &jumlah_user, pilihan, &nohp);
+                    break;
+                case 2:
+                    login(&username, &password, penjual, pwsell, &jumlah_user, pilihan, percobaan, &nohp, &hppj);
+                    break;
+                case 3:
+                    cout << "Keluar dari program." << endl;
+                    return; // keluar dari fungsi
+                default:
+                    cout << "Pilihan tidak valid. Masukkan angka 1 - 3." << endl;
+                    break;
+            }
+
+        } catch (const invalid_argument& e) {
+            cout << "Terjadi kesalahan: " << e.what() << endl;
         }
-    // } while (pilihan != 3);
+
+    } while (pilihan != 3);
 }
+
 
 // ----------------------------------------
 // |                                      |
