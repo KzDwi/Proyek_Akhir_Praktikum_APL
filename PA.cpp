@@ -110,30 +110,35 @@ bool cekuser(){
     return false;
 }
 
-bool verifikasiuser(){
+bool verifikasiPembeli(const json& data, const string& username, const string& password) {
+    for (const auto& user : data["pembeli"]) {
+        if (user["username"] == username && user["password"] == password) {
+            return true;
+        }
+    }
+    return false;
+}
+bool verifikasiPenjual(const json& data, const string& username, const string& password) {
+    for (const auto& seller : data["penjual"]) {
+        if (seller["username"] == username && seller["password"] == password) {
+            return true;
+        }
+    }
+    return false;
+}
+bool verifikasiuser(const string& username, const string& password) {
     json data;
     ifstream inFile("data_user.json");
     if (inFile.is_open()) {
         inFile >> data;
         inFile.close();
     }
-    
-    // cek pembeli
-    for (const auto& user : data["pembeli"]) {
-        if (user["username"] == username && user["password"] == password) {
-            return true;
-        }
+    if (verifikasiPembeli(data, username, password)) {
+        return true;
     }
-
-    // Cek di penjual
-    for (const auto& seller : data["penjual"]) {
-        if (seller["username"] == penjual[jumlah_user] && seller["password"] == pwsell[jumlah_user]) {
-            usernameadmin = penjual[jumlah_user];
-            passwordadmin = pwsell[jumlah_user];
-            return true;
-        }
+    if (verifikasiPenjual(data, username, password)) {
+        return true;
     }
-
     return false;
 }
 
@@ -1022,7 +1027,13 @@ void regis(string& username, string& password, string* penjual, string* pwsell, 
 
 }
 bool login(string& username, string& password, string* penjual, string* pwsell, int* jumlah_user, int& pilihan, int& percobaan, string& nohp, string& hppj) {
-    cout << "\n=== Menu Login ==" << endl;
+    json data;
+    std::ifstream inFile("data_user.json");
+    if (inFile.is_open()) {
+        inFile >> data;
+        inFile.close();
+    }
+    cout << "\n=== Menu Login ===" << endl;
     cout << "1. Login sebagai penjual" << endl;
     cout << "2. Login sebagai pembeli" << endl;
     cout << "3. Keluar" << endl;
@@ -1031,7 +1042,7 @@ bool login(string& username, string& password, string* penjual, string* pwsell, 
 
     if (cin.fail()) {
         cin.clear();
-        cin.ignore(numeric_limits<streamsize>::max(), '\n');
+        cin.ignore();
         cout << "Input tidak valid. Masukkan angka." << endl;
         return login(username, password, penjual, pwsell, jumlah_user, pilihan, percobaan, nohp, hppj);
     }
@@ -1042,7 +1053,7 @@ bool login(string& username, string& password, string* penjual, string* pwsell, 
         cin >> penjual[*jumlah_user];
         cout << "Masukkan password: ";
         cin >> pwsell[*jumlah_user];
-        if (verifikasiuser()) {
+        if (verifikasiPenjual(data, penjual[*jumlah_user], pwsell[*jumlah_user])) {
             cout << "Berhasil Login ke Menu Penjual!" << endl;
             do {
                 cout << "\n=== Menu Penjual / Admin ===" << endl;
@@ -1059,32 +1070,32 @@ bool login(string& username, string& password, string* penjual, string* pwsell, 
 
                 if (cin.fail()) {
                     cin.clear();
-                    cin.ignore(numeric_limits<streamsize>::max(), '\n');
+                    cin.ignore();
                     cout << "Input tidak valid. Masukkan angka." << endl;
                     continue;
                 }
 
                 switch (pilihan) {
                 case 1:
-                    barangpenjual(usernameadmin);
+                    barangpenjual(penjual[*jumlah_user]);
                     break;
                 case 2:
-                    lihatbarang(usernameadmin);
+                    lihatbarang(penjual[*jumlah_user]);
                     break;
                 case 3:
-                    editbarang(cari_nama, usernameadmin);
+                    editbarang(cari_nama, penjual[*jumlah_user]);
                     break;
                 case 4:
-                    menghapusbarang(cari_nama, ketemu, usernameadmin);
+                    menghapusbarang(cari_nama, ketemu, penjual[*jumlah_user]);
                     break;
                 case 5:
-                    tarikuang(usernameadmin, passwordadmin, dana);
+                    tarikuang(penjual[*jumlah_user], pwsell[*jumlah_user], dana);
                     break;
                 case 6:
-                    laporanpenjualan(usernameadmin);
+                    laporanpenjualan(penjual[*jumlah_user]);
                     break;
                 case 7:
-                    konfirmasiPesananAdmin(usernameadmin);
+                    konfirmasiPesananAdmin(penjual[*jumlah_user]);
                     break;
                 case 8:
                     cout << "logout" << endl;
@@ -1107,7 +1118,7 @@ bool login(string& username, string& password, string* penjual, string* pwsell, 
         cout << "Masukkan password: ";
         cin >> password;
         cin.ignore();
-        if (verifikasiuser()) {
+        if (verifikasiPembeli(data, username, password)) {
             cout << "login berhasil" << endl;
             do {
                 cout << "\n=== Menu Pembeli / User ===" << endl;
@@ -1122,7 +1133,7 @@ bool login(string& username, string& password, string* penjual, string* pwsell, 
 
                 if (cin.fail()) {
                     cin.clear();
-                    cin.ignore(numeric_limits<streamsize>::max(), '\n');
+                    cin.ignore();
                     cout << "Input tidak valid. Masukkan angka." << endl;
                     continue;
                 }
@@ -1166,7 +1177,7 @@ bool login(string& username, string& password, string* penjual, string* pwsell, 
         cout << "Pilihan tidak valid." << endl;
         break;
     }
-    return 0;
+    return false;
 }
 
 
@@ -1181,10 +1192,10 @@ void menuutama() {
             cout << "Pilihan Anda: ";
             
             cin >> pilihan;
-
+            
             if (cin.fail()) {
                 cin.clear(); 
-                cin.ignore(numeric_limits<streamsize>::max(), '\n'); 
+                cin.ignore(); 
                 throw invalid_argument("Input harus berupa angka.");
             }
 
@@ -1197,7 +1208,7 @@ void menuutama() {
                     break;
                 case 3:
                     cout << "Keluar dari program." << endl;
-                    return; // keluar dari fungsi
+                    return; 
                 default:
                     cout << "Pilihan tidak valid. Masukkan angka 1 - 3." << endl;
                     break;
