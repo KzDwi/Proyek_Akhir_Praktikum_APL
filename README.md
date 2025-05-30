@@ -1,4 +1,5 @@
 📦 Sistem Manajemen Toko Online 🛒
+
 Sebuah program C++ yang memungkinkan pengguna untuk berperan sebagai penjual atau pembeli dalam sebuah platform toko online. Program ini dilengkapi dengan fitur-fitur lengkap seperti manajemen barang, transaksi, laporan penjualan, dan banyak lagi!
 
 🧑‍💻 Kelompok Rantasik
