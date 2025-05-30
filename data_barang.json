@@ -19,14 +19,14 @@
             "berat": 100,
             "harga": 100,
             "nama": "ret",
-            "stok": 30
+            "stok": 29
         },
         {
             "Toko": "5",
             "berat": 100,
             "harga": 10000,
             "nama": "Mebel Murah",
-            "stok": 5
+            "stok": 0
         }
     ]
 }

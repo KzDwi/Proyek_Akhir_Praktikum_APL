@@ -3,6 +3,7 @@
 #include "json.hpp"  
 #include <string>
 #include <set>
+#include <cstdlib>
 
 using json = nlohmann::json;
 using namespace std;
@@ -31,6 +32,15 @@ struct InputBarang
     int berat;
 };
 
+// Bersihin Konsol/Terminal
+int bebersih(){
+    #if defined(_WIN32) || defined(_WIN64)
+        system("cls");
+    #elif defined(__linux__) 
+        system("clear");
+    #endif
+        return 0;
+}
 
 // ----------------------------------------
 // |                                      |
@@ -142,14 +152,72 @@ bool verifikasiuser(const string& username, const string& password) {
     return false;
 }
 
-// ----------------------------------------
-// |                                      |
-// |          FITUR ADMIN                 |
-// |            GACOR LE                  |
-// |                                      |
-// |--------------------------------------|
 
-void lihatbarang(const string& usernameadmin){ // MELIHAT BARANG PEMILIK TOKO ITU SENDIRI
+// Teknis Sorting dengan Merge Sort
+void merge(json& data, int left, int mid, int right, const string& sortBy, bool ascending) {
+    int n1 = mid - left + 1;
+    int n2 = right - mid;
+
+    // Array sementara disini
+    json L = json::array();
+    json R = json::array();
+
+    // Salin Data ke array
+    for (int i = 0; i < n1; i++)
+        L.push_back(data["barang"][left + i]);
+    for (int j = 0; j < n2; j++)
+        R.push_back(data["barang"][mid + 1 + j]);
+
+    // Prosesi Merge (Ascending/Descending)
+    int i = 0, j = 0, k = left;
+    while (i < n1 && j < n2) {
+        bool condition;
+        if (sortBy == "nama") {
+            condition = (ascending) ? 
+                (L[i]["nama"] <= R[j]["nama"]) : 
+                (L[i]["nama"] >= R[j]["nama"]);
+        } else if (sortBy == "harga") {
+            condition = (ascending) ? 
+                (L[i]["harga"] <= R[j]["harga"]) : 
+                (L[i]["harga"] >= R[j]["harga"]);
+        } else if (sortBy == "stok") {
+            condition = (ascending) ? 
+                (L[i]["stok"] <= R[j]["stok"]) : 
+                (L[i]["stok"] >= R[j]["stok"]);
+        }
+        if (condition) {
+            data["barang"][k] = L[i];
+            i++;
+        } else {
+            data["barang"][k] = R[j];
+            j++;
+        }
+        k++;
+    }
+
+    // Copy remaining elements
+    while (i < n1) {
+        data["barang"][k] = L[i];
+        i++;
+        k++;
+    }
+    while (j < n2) {
+        data["barang"][k] = R[j];
+        j++;
+        k++;
+    }
+}
+
+void mergeSort(json& data, int left, int right, const string& sortBy, bool ascending) {
+    if (left < right) {
+        int mid = left + (right - left) / 2;
+        mergeSort(data, left, mid, sortBy, ascending);
+        mergeSort(data, mid + 1, right, sortBy, ascending);
+        merge(data, left, mid, right, sortBy, ascending);
+    }
+}
+
+void Sorting(){
     ifstream file("data_barang.json");
     json data;
     if(!file.is_open()) {
@@ -158,16 +226,152 @@ void lihatbarang(const string& usernameadmin){ // MELIHAT BARANG PEMILIK TOKO IT
     }
     file >> data;
 
+    // <+= Added sorting option for admin view
+    int sortChoice;
+    cout << "\n========== Pilihan Sorting ==========\n";
+    cout << "|| 1. Sort berdasarkan Nama Barang (A-Z)\n";
+    cout << "|| 2. Sort berdasarkan Nama Barang (Z-A)\n";
+    cout << "|| 3. Sort berdasarkan Harga (Termurah)\n";
+    cout << "|| 4. Sort berdasarkan Harga (Termahal)\n" << endl;
+    cout << "Masukkan pilihan sorting: ";
+    cin >> sortChoice;
+
+    string sortBy;
+    bool ascending;
+    switch(sortChoice) {
+        case 1: sortBy = "nama"; ascending = true; break;
+        case 2: sortBy = "nama"; ascending = false; break;
+        case 3: sortBy = "harga"; ascending = true; break;
+        case 4: sortBy = "harga"; ascending = false; break;
+        default: 
+            cout << "Pilihan tidak valid, menggunakan default sort (nama A-Z)\n";
+            sortBy = "nama"; ascending = true;
+    }
+
+    if (data["barang"].size() > 0) {
+        mergeSort(data, 0, data["barang"].size() - 1, sortBy, ascending);
+    }
+}
+
+void Carikan(){
+    ifstream file("data_barang.json");
+    json data;
+    if (!file.is_open()) {
+        cout << "Gagal membuka data_barang.json" << endl;
+        return;
+    }
+    file >> data;
+
+    do{
+
+        int pilihan;
+        cout << "\n== Menu Pencarian ==" << endl;
+        cout << "1. Cari berdasarkan Nama" << endl;
+        cout << "2. Cari berdasarkan Harga" << endl;
+        cout << "Pilihan: ";
+        cin >> pilihan;
+        cin.ignore();
+        
+        string cari_nama;
+        int cari_harga;
+        bool Cari = false;
+        
+        if (pilihan == 1) {
+            cout << "Masukkan nama barang yang dicari: ";
+            getline(cin, cari_nama);
+            Cari = true;
+        } 
+        else if (pilihan == 2) {
+            cout << "Masukkan harga yang dicari: ";
+            cin >> cari_harga;
+            cin.ignore();
+            Cari = true;
+        }
+        
+        bool found = false;
+        cout << "\n== Data Toko " << usernameadmin << " ==" << endl;
+        
+        // Mulai Linear Search
+        for (const auto& barang : data["barang"]) {
+            if (barang["Toko"] == usernameadmin) {
+                // Skip jika sedang mode search dan tidak match
+                if (Cari) {
+                    if (pilihan == 2 && 
+                        barang["nama"].get<string>().find(cari_nama) == string::npos) {
+                            continue; // Tidak match dengan nama
+                        }
+                    if (pilihan == 3 && 
+                        barang["harga"].get<int>() != cari_harga) {
+                            continue; // Tidak match dengan harga
+                        }
+                    }
+                
+                // Tampilkan barang yang match
+                cout << "Nama: " << barang["nama"] << endl;
+                cout << "Stok: " << barang["stok"] << endl;
+                cout << "Berat: " << barang["berat"] << endl;
+                cout << "Harga: " << barang["harga"] << endl;
+                cout << "------------------------" << endl;
+                found = true;
+            }
+        }
+        if (!found) {
+            if (Cari) {
+                cout << "Tidak ditemukan barang yang sesuai dengan kriteria pencarian!" << endl;
+            } else {
+                cout << "Tidak Ada Barang" << endl;
+            }
+        }
+        }while(pilihan != 3);
+}
+
+
+// ----------------------------------------
+// |                                      |
+// |          FITUR ADMIN                 |
+// |            GACOR LE                  |
+// |                                      |
+// |--------------------------------------|
+
+void lihatbarang(const string& usernameadmin, bool show_only){ // MELIHAT BARANG PEMILIK TOKO ITU SENDIRI
+    ifstream file("data_barang.json");
+    json data;
+    if(!file.is_open()) {
+        cout << "Gagal membuka data_barang.json" << endl;
+        return;
+    }
+    file >> data;
+    cout << usernameadmin;
     bool found = false;
     cout << "\n== Data Toko " << usernameadmin << " ==" << endl;
     for (const auto& barang : data["barang"]) {
         if (barang["Toko"] == usernameadmin) { 
-            cout << "nama: " << barang["nama"] << endl;
-            cout << "stok: " << barang["stok"] << endl;
-            cout << "berat: " << barang["berat"] << endl;
-            cout << "harga: " << barang["harga"] << endl;
-            cout << endl;
+            cout << "|| Nama: " << barang["nama"];
+            cout << "  | Stok: " << barang["stok"] << endl;
+            cout << "|| Berat: " << barang["berat"];
+            cout << "  | Harga: " << barang["harga"] << endl << endl;
             found = true;
+        }
+    }
+
+    if (show_only == false){
+        int pilihan;
+        cout << "||================= Menu =================||" << endl;
+        cout << "||  [1] Urutkan || [2] Cari || [3] Keluar ||" << endl;
+        cout << "||========================================||" << endl << endl;
+        cin >> pilihan;
+        cin.ignore();
+        switch(pilihan){
+            case 1:
+            Sorting();
+            break;
+            case 2:
+            Carikan();
+            break;
+            case 3:
+            break;
+            default:
+            cout << "Pilihan Tidak Valid" << endl;
         }
     }
 
@@ -187,16 +391,18 @@ void lihatbarangpembeli() { // MELIHAT SEMUA BARANG YANG DIJUAL DARI BERBAGAI TO
         
     cout << "\n== Data barang penjual ==" << endl;
     for (const auto& barang : data["barang"]) {
-        cout << "Toko: " << barang["Toko"] << endl;
-        cout << "nama: " << barang["nama"] << endl;
-        cout << "stok: " << barang["stok"] << endl;
-        cout << "berat: " << barang["berat"] << endl;
-        cout << "harga: " << barang["harga"] << endl;
+        if (barang["stok"] > 0){
+            cout << "|| Toko: " << barang["Toko"] << endl;
+            cout << "|| Nama: " << barang["nama"];
+            cout << "  | Stok: " << barang["stok"] << endl;
+            cout << "|| Berat: " << barang["berat"];
+            cout << "  | Harga: " << barang["harga"] << endl << endl;
+        }
     }
 }
     
 
-void barangpenjual(const string& usernameadmin){ // MENAMBAH BARANG (PENJUAL)
+void barangpenjual(const string& usernameadmin, bool show_only){ // MENAMBAH BARANG (PENJUAL)
     InputBarang TambahBarang;
     cin.ignore();
     cout << "masukkan nama barang"<<endl;
@@ -230,10 +436,10 @@ void barangpenjual(const string& usernameadmin){ // MENAMBAH BARANG (PENJUAL)
     outFile << data.dump(4);
     outFile.close();
 
-    lihatbarang(usernameadmin);
+    lihatbarang(usernameadmin,show_only);
 }
 
-void editbarang(string& cari_nama, const string& usernameadmin) { // MENGEDIT BARANG (PENJUAL)
+void editbarang(string& cari_nama, const string& usernameadmin, bool show_only) { // MENGEDIT BARANG (PENJUAL)
     ifstream inFile("data_barang.json");
 
     json data;
@@ -246,7 +452,7 @@ void editbarang(string& cari_nama, const string& usernameadmin) { // MENGEDIT BA
     }
 
     // Menampilkan Data Barang
-    lihatbarang(usernameadmin);
+    lihatbarang(usernameadmin,show_only);
 
     ketemu = false;
     cout << "\n=== Edit Data Barang ===" << endl;
@@ -293,7 +499,7 @@ void editbarang(string& cari_nama, const string& usernameadmin) { // MENGEDIT BA
     }
 }
 
-void menghapusbarang(string& cari_nama, bool& ketemu, const string& usernameadmin) {
+void menghapusbarang(string& cari_nama, bool& ketemu, const string& usernameadmin, bool show_only) {
     ifstream inFile("data_barang.json");
     json data;
 
@@ -306,7 +512,7 @@ void menghapusbarang(string& cari_nama, bool& ketemu, const string& usernameadmi
     }
 
     // Menampilkan Barang
-    lihatbarang(usernameadmin);
+    lihatbarang(usernameadmin,show_only);
 
     auto& list = data["barang"];
     ketemu = false;
@@ -712,7 +918,7 @@ void topup(const string& username, const string& password){ // Menambahkan Dana 
         cout << "Data pengguna tidak ditemukan. Top up gagal." << endl;
     }
 }  
-       
+
 void beli(const string& username, const string& password) { // User Membeli Barang Dan Status Barang Dipesan
     json dataBarang, dataUser, dataPembelian;
     string namaBarang;
@@ -994,6 +1200,56 @@ void hapuspesanan(const string& username, const string& password){ // Menghapus 
     outFileP.close();
 }
 
+int kelolaBarang(string usernameadmin, string passwordadmin){
+    do {
+        int pilihan;
+        bool show_only = true;
+        cout << "\n=== Kelola Barang ===" << endl;
+        cout << "|| 1. Tambah Barang" << endl;
+        cout << "|| 2. Lihat Barang" << endl;
+        cout << "|| 3. Edit Barang" << endl;
+        cout << "|| 4. Hapus Barang" << endl;
+        cout << "|| 5. Kembali ke Menu Penjual" << endl;
+        cout << "|| Masukkan Pilihan : " << endl;
+        cin >> pilihan;
+        
+        if (cin.fail()) {
+            cin.clear();
+            cin.ignore();
+            bebersih();
+            cout << "Input tidak valid. Masukkan angka." << endl;
+            continue;
+        }
+        
+        switch (pilihan) {
+            case 1:
+                bebersih();
+                barangpenjual(usernameadmin, show_only);
+                break;
+            case 2:
+                bebersih();
+                show_only = false;
+                lihatbarang(usernameadmin,show_only);
+                break;
+            case 3:
+                bebersih();
+                editbarang(cari_nama, usernameadmin, show_only);
+                break;
+            case 4:
+                bebersih();
+                menghapusbarang(cari_nama, ketemu, usernameadmin, show_only);
+                break;
+            case 5:
+                bebersih();
+                cout << "Kembali ke Menu Penjual" << endl;
+                return true;
+            default:
+                bebersih();
+                cout << "Pilihan tidak valid" << endl;
+        }
+    }while(true);
+}
+
 // ----------------------------------------
 // |                                      |
 // |      REGIS, LOGIN DAN MENU           |
@@ -1003,17 +1259,15 @@ void hapuspesanan(const string& username, const string& password){ // Menghapus 
 
 void menuadmin(const string usernameadmin, const string passwordadmin) {
 
-    while (pilihan != 8)
+    while (pilihan != 5)
     {
+        int pilihan;
         cout << "\n=== Menu Penjual / Admin ===" << endl;
-        cout << "1. tambah barang" << endl;
-        cout << "2. lihat barang" << endl;
-        cout << "3. edit barang" << endl;
-        cout << "4. hapus barang" << endl;
-        cout << "5. Tarik Penghasilan" << endl;
-        cout << "6. Laporan Penjualan" << endl;
-        cout << "7. Cek Pesanan Pembeli" << endl;
-        cout << "8. Kembali" << endl;
+        cout << "1. Kelola Barang" << endl;
+        cout << "2. Tarik Penghasilan" << endl;
+        cout << "3. Laporan Penjualan" << endl;
+        cout << "4. Cek Pesanan Pembeli" << endl;
+        cout << "5. Kembali" << endl;
         cout << "Masukkan Pilihan: ";
         cin >> pilihan;
 
@@ -1026,31 +1280,34 @@ void menuadmin(const string usernameadmin, const string passwordadmin) {
 
         switch (pilihan) {
         case 1:
-            barangpenjual(usernameadmin);
+            bebersih();
+            kelolaBarang(usernameadmin,passwordadmin);
+            pilihan = 0;
             break;
         case 2:
-            lihatbarang(usernameadmin);
+            bebersih();
+            tarikuang(usernameadmin, passwordadmin, dana);
+            pilihan = 0;
             break;
         case 3:
-            editbarang(cari_nama, usernameadmin);
+            bebersih();
+            laporanpenjualan(usernameadmin);
+            pilihan = 0;
             break;
         case 4:
-            menghapusbarang(cari_nama, ketemu, usernameadmin);
+            bebersih();
+            konfirmasiPesananAdmin(usernameadmin);
+            pilihan = 0;
             break;
         case 5:
-            tarikuang(usernameadmin, passwordadmin, dana);
-            break;
-        case 6:
-            laporanpenjualan(usernameadmin);
-            break;
-        case 7:
-            konfirmasiPesananAdmin(usernameadmin);
-            break;
-        case 8:
+            bebersih();
             cout << "Kembali Ke Menu Login" << endl;
-            break;
+            pilihan = 0;
+            menuutama();
         default:
+            bebersih();
             cout << "pilihan tidak valid" << endl;
+            pilihan = 0;
         }
     }
 }
@@ -1070,36 +1327,45 @@ void menupembeli(const string username, string password) {
         if (cin.fail()) {
             cin.clear();
             cin.ignore();
+            bebersih();
             cout << "Input tidak valid. Masukkan angka." << endl;
             continue;
         }
 
         switch (pilihan) {
         case 1:
+            bebersih();
             topup(username, password);
             continue;
         case 2:
+            bebersih();
             beli(username, password);
             continue;
         case 3:
+            bebersih();
             password = editdetail(username, password);
             continue;
         case 4:
+            bebersih();
             hapuspesanan(username, password);
             continue;
         case 5:
+            bebersih();
             lihatpesanan(username);
             continue;
         case 6:
+            bebersih();
             cout << "Kembali Ke Menu Login" << endl;
             break;
         default:
+            bebersih();
             cout << "pilihan tidak valid" << endl;
         }
     } while (pilihan != 6);
 }
 
 void regis(string& username, string& password, string* penjual, string* pwsell, int& jumlah_user, int& pilihan, string& nohp){ // Registrasi
+    bool repeat = false;
     cout << "\n=== Menu Pendaftaran ===" << endl;
     cout << "1. Daftar sebagai penjual" << endl;
     cout << "2. Daftar sebagai pembeli" << endl;
@@ -1110,10 +1376,14 @@ void regis(string& username, string& password, string* penjual, string* pwsell, 
     switch (pilihan)
     {
     case 1:
-        cout << endl;
+        if(repeat == false){
+            bebersih();
+        }
         cout<<"Masukkan username: ";
         cin>>penjual[jumlah_user];
         if(cekuser()){
+            repeat = true;
+            bebersih();
             cout<<"username sudah terdaftar, silahkan cari username lain"<<endl;
             return;
         }
@@ -1127,10 +1397,14 @@ void regis(string& username, string& password, string* penjual, string* pwsell, 
         break;
     
     case 2:
-        cout << endl;
+        if(repeat == false){
+            bebersih();
+        }
         cout << "Masukkan username: ";
         cin>>username;
         if(cekuser()){
+            repeat = true;
+            bebersih();
             cout<<"username sudah terdaftar, silahkan cari username lain"<<endl;
             return;
         }
@@ -1144,8 +1418,7 @@ void regis(string& username, string& password, string* penjual, string* pwsell, 
 
     case 3:
         cout << "Kembali Ke Menu Sebelumnya" << endl;
-        return;
-        break;
+        menuutama();
     default:
         cout << "Pilihan tidak valid." << endl;
         break;
@@ -1169,6 +1442,7 @@ void login(string& username, string& password, string* penjual, string* pwsell, 
     if (cin.fail()) {
         cin.clear();
         cin.ignore();
+        bebersih();
         cout << "Input tidak valid. Masukkan angka." << endl;
         return login(username, password, penjual, pwsell, jumlah_user, pilihan, percobaan, nohp, hppj);
     }
@@ -1180,6 +1454,7 @@ void login(string& username, string& password, string* penjual, string* pwsell, 
         cout << "Masukkan password: ";
         cin >> pwsell[*jumlah_user];
         if (verifikasiPenjual(data, penjual[*jumlah_user], pwsell[*jumlah_user])) {
+            bebersih();
             cout << "Berhasil Login ke Menu Penjual!" << endl;
             menuadmin(penjual[*jumlah_user], pwsell[*jumlah_user]);
         } 
@@ -1197,10 +1472,12 @@ void login(string& username, string& password, string* penjual, string* pwsell, 
         cin >> password;
         cin.ignore();
         if (verifikasiPembeli(data, username, password)) {
+            bebersih();
             cout << "login berhasil" << endl;
             menupembeli(username, password);
         } 
         else {
+            bebersih();
             cout << "login gagal" << endl;
             cout << "username atau password salah" << endl;
             return;
@@ -1208,10 +1485,23 @@ void login(string& username, string& password, string* penjual, string* pwsell, 
         break;
 
     case 3:
+        bebersih();
         cout << "Kembali Ke Menu Sebelumnya" << endl;
         break;
 
+    // case 6:
+    //     cout << "=== SUPERADMIN ===";
+    //     cout << "Masukkan username : ";
+    //     cin >> username;
+    //     cout << "Masukkan password : ";
+    //     cin >> password;
+    //     cin.ignore();
+    //     if (username == "E-RAD" && password == "51814"){
+    //         menusuper();
+    //     }
+
     default:
+        bebersih();
         cout << "Pilihan tidak valid." << endl;
         break;
     }
@@ -1243,6 +1533,7 @@ void menuutama() {
                     pilihan = 0;
                     break;
                 case 2:
+                    bebersih();
                     login(username, password, penjual, pwsell, &jumlah_user, pilihan, percobaan, nohp, hppj);
                     pilihan = 0;
                     break;
@@ -1250,6 +1541,7 @@ void menuutama() {
                     cout << "Terimakasih Sudah Menggunakan Program Kami" << endl;
                     return;
                 default:
+                    bebersih();
                     cout << "Pilihan tidak valid. Masukkan angka 1 - 3." << endl;
                     menuutama();
             }

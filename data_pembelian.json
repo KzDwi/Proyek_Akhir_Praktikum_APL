@@ -1,7 +1,7 @@
 {
     "pembelian": [
         {
-            "Status": "Selesai",
+            "Status": "SelesaiDitarik",
             "Toko": "5",
             "UID": 3,
             "jumlah": 20,
@@ -10,7 +10,7 @@
             "username": "r"
         },
         {
-            "Status": "Selesai",
+            "Status": "SelesaiDitarik",
             "Toko": "5",
             "UID": 4,
             "jumlah": 10,
@@ -19,7 +19,7 @@
             "username": "r"
         },
         {
-            "Status": "Selesai",
+            "Status": "SelesaiDitarik",
             "Toko": "5",
             "UID": 5,
             "jumlah": 10,
@@ -28,7 +28,7 @@
             "username": "r"
         },
         {
-            "Status": "Selesai",
+            "Status": "SelesaiDitarik",
             "Toko": "5",
             "UID": 6,
             "jumlah": 10,
@@ -37,13 +37,31 @@
             "username": "r"
         },
         {
-            "Status": "Selesai",
+            "Status": "SelesaiDitarik",
             "Toko": "5",
             "UID": 7,
             "jumlah": 5,
             "nama_barang": "Mebel Murah",
             "total_harga": 50000,
             "username": "r"
+        },
+        {
+            "Status": "Dipesan",
+            "Toko": "5",
+            "UID": 8,
+            "jumlah": 1,
+            "nama_barang": "ret",
+            "total_harga": 100,
+            "username": "andin"
+        },
+        {
+            "Status": "Dipesan",
+            "Toko": "5",
+            "UID": 9,
+            "jumlah": 5,
+            "nama_barang": "Mebel Murah",
+            "total_harga": 50000,
+            "username": "andin"
         }
     ]
 }
