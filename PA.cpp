@@ -3,7 +3,6 @@
 #include "json.hpp"  
 #include <string>
 #include <set>
-#include <cstdlib>
 
 using json = nlohmann::json;
 using namespace std;
@@ -29,17 +28,19 @@ struct InputBarang
     string namabarang;
     int stok;
     int harga;
-    int berat;
+    float berat;
 };
 
 // Bersihin Konsol/Terminal
 int bebersih(){
-    #if defined(_WIN32) || defined(_WIN64)
-        system("cls");
-    #elif defined(__linux__) 
-        system("clear");
-    #endif
-        return 0;
+
+    for (int i = 0; i < 25; i++)
+    {
+    cout << endl;
+    cout << endl;
+    }
+
+    return 0;
 }
 
 // ----------------------------------------
@@ -98,6 +99,8 @@ void datapembeli(const string& username, const string& password, const string& n
 bool cekuser(){
     json data;
     ifstream inFile("data_user.json");
+
+    string usernameadmin2 = penjual[jumlah_user];
     if (inFile.is_open()) {
         inFile >> data;
         inFile.close();
@@ -112,7 +115,7 @@ bool cekuser(){
 
     // Cek di penjual
     for (const auto& seller : data["penjual"]) {
-        if (seller["username"] == penjual[jumlah_user]) {
+        if (seller["username"] == usernameadmin2) {
             return true;
         }
     }
@@ -153,71 +156,71 @@ bool verifikasiuser(const string& username, const string& password) {
 }
 
 
-// Teknis Sorting dengan Merge Sort
-void merge(json& data, int left, int mid, int right, const string& sortBy, bool ascending) {
-    int n1 = mid - left + 1;
-    int n2 = right - mid;
+//Merge Sort
+void merge(json& data, int sisikiri, int titiktengah, int sisikanan, const string& sortir, bool ascending) {
+    int n1 = titiktengah - sisikiri + 1;
+    int n2 = sisikanan - titiktengah;
 
     // Array sementara disini
-    json L = json::array();
-    json R = json::array();
+    json Kiri = json::array();
+    json Kanan = json::array();
 
     // Salin Data ke array
     for (int i = 0; i < n1; i++)
-        L.push_back(data["barang"][left + i]);
+        Kiri.push_back(data["barang"][sisikiri + i]);
     for (int j = 0; j < n2; j++)
-        R.push_back(data["barang"][mid + 1 + j]);
+        Kanan.push_back(data["barang"][titiktengah + 1 + j]);
 
-    // Prosesi Merge (Ascending/Descending)
-    int i = 0, j = 0, k = left;
+    // Merge (Ascending/Descending)
+    int i = 0, j = 0, k = sisikiri;
     while (i < n1 && j < n2) {
-        bool condition;
-        if (sortBy == "nama") {
-            condition = (ascending) ? 
-                (L[i]["nama"] <= R[j]["nama"]) : 
-                (L[i]["nama"] >= R[j]["nama"]);
-        } else if (sortBy == "harga") {
-            condition = (ascending) ? 
-                (L[i]["harga"] <= R[j]["harga"]) : 
-                (L[i]["harga"] >= R[j]["harga"]);
-        } else if (sortBy == "stok") {
-            condition = (ascending) ? 
-                (L[i]["stok"] <= R[j]["stok"]) : 
-                (L[i]["stok"] >= R[j]["stok"]);
+        bool kondisi;
+        if (sortir == "nama") {
+            string Nilai1 = Kiri[i][sortir].get<string>();
+            string Nilai2 = Kanan[j][sortir].get<string>();
+            kondisi = (ascending) ? 
+            (Nilai1 <= Nilai2) : (Nilai1 >= Nilai2);
+        } else if (sortir == "harga") {
+            int Nilai1 = Kiri[i][sortir].get<int>();
+            int Nilai2 = Kanan[j][sortir].get<int>();
+            kondisi = (ascending) ? (Nilai1 <= Nilai2) : (Nilai1 >= Nilai2);
+        } else if (sortir == "stok") {
+            int Nilai1 = Kiri[i][sortir].get<int>();
+            int Nilai2 = Kanan[j][sortir].get<int>();
+            kondisi = (ascending) ? (Nilai1 <= Nilai2) : (Nilai1 >= Nilai2);
         }
-        if (condition) {
-            data["barang"][k] = L[i];
+        if (kondisi) {
+            data["barang"][k] = Kiri[i];
             i++;
         } else {
-            data["barang"][k] = R[j];
+            data["barang"][k] = Kanan[j];
             j++;
         }
         k++;
     }
 
-    // Copy remaining elements
     while (i < n1) {
-        data["barang"][k] = L[i];
+        data["barang"][k] = Kiri[i];
         i++;
         k++;
     }
     while (j < n2) {
-        data["barang"][k] = R[j];
+        data["barang"][k] = Kanan[j];
         j++;
         k++;
     }
 }
 
-void mergeSort(json& data, int left, int right, const string& sortBy, bool ascending) {
-    if (left < right) {
-        int mid = left + (right - left) / 2;
-        mergeSort(data, left, mid, sortBy, ascending);
-        mergeSort(data, mid + 1, right, sortBy, ascending);
-        merge(data, left, mid, right, sortBy, ascending);
+void mergeSort(json& data, int sisikiri, int sisikanan, const string& sortir, bool ascending) {
+    if (sisikiri < sisikanan) {
+        int titiktengah = sisikiri + (sisikanan - sisikiri) / 2;
+        mergeSort(data, sisikiri, titiktengah, sortir, ascending);
+        mergeSort(data, titiktengah + 1, sisikanan, sortir, ascending);
+        merge(data, sisikiri, titiktengah, sisikanan, sortir, ascending);
     }
 }
 
-void Sorting(){
+void Sorting(const string& usernameadmin){
     ifstream file("data_barang.json");
     json data;
     if(!file.is_open()) {
@@ -226,34 +229,44 @@ void Sorting(){
     }
     file >> data;
 
-    // <+= Added sorting option for admin view
     int sortChoice;
     cout << "\n========== Pilihan Sorting ==========\n";
     cout << "|| 1. Sort berdasarkan Nama Barang (A-Z)\n";
     cout << "|| 2. Sort berdasarkan Nama Barang (Z-A)\n";
     cout << "|| 3. Sort berdasarkan Harga (Termurah)\n";
-    cout << "|| 4. Sort berdasarkan Harga (Termahal)\n" << endl;
+    cout << "|| 4. Sort berdasarkan Harga (Termahal)\n";
+    cout << "|| 5. Sort berdasarkan Stok (Tersedikit)\n";
+    cout << "|| 6. Sort berdasarkan Stok (Terbanyak)\n" << endl;
     cout << "Masukkan pilihan sorting: ";
     cin >> sortChoice;
 
-    string sortBy;
+    string sortir;
     bool ascending;
     switch(sortChoice) {
-        case 1: sortBy = "nama"; ascending = true; break;
-        case 2: sortBy = "nama"; ascending = false; break;
-        case 3: sortBy = "harga"; ascending = true; break;
-        case 4: sortBy = "harga"; ascending = false; break;
+        case 1: sortir = "nama"; ascending = true; break;
+        case 2: sortir = "nama"; ascending = false; break;
+        case 3: sortir = "harga"; ascending = true; break;
+        case 4: sortir = "harga"; ascending = false; break;
+        case 5: sortir = "stok"; ascending = true; break;
+        case 6: sortir = "stok"; ascending = false; break;
         default: 
             cout << "Pilihan tidak valid, menggunakan default sort (nama A-Z)\n";
-            sortBy = "nama"; ascending = true;
+            sortir = "nama"; ascending = true;
     }
 
     if (data["barang"].size() > 0) {
-        mergeSort(data, 0, data["barang"].size() - 1, sortBy, ascending);
+        mergeSort(data, 0, data["barang"].size() - 1, sortir, ascending);
+    }
+    ofstream outFile("data_barang.json");
+    outFile << data.dump(4);
+    outFile.close();
+    cout << "Data Toko" << endl;
+    for (const auto& barang : data["barang"]) {
+        cout << "Nama: " << barang["nama"] << " || Harga: " << barang["harga"] << " || Stok: " << barang["stok"] << endl;
     }
 }
 
-void Carikan(){
+void Carikan(string usernameadmin){
     ifstream file("data_barang.json");
     json data;
     if (!file.is_open()) {
@@ -268,6 +281,7 @@ void Carikan(){
         cout << "\n== Menu Pencarian ==" << endl;
         cout << "1. Cari berdasarkan Nama" << endl;
         cout << "2. Cari berdasarkan Harga" << endl;
+        cout << "3. Kembali ke Kelola Barang" << endl;
         cout << "Pilihan: ";
         cin >> pilihan;
         cin.ignore();
@@ -287,6 +301,13 @@ void Carikan(){
             cin.ignore();
             Cari = true;
         }
+        else if (pilihan == 3) {
+            return;
+        }
+        else {
+            cout << "Pilihan tidak valid" << endl;
+            pilihan = 3;
+        }
         
         bool found = false;
         cout << "\n== Data Toko " << usernameadmin << " ==" << endl;
@@ -296,15 +317,24 @@ void Carikan(){
             if (barang["Toko"] == usernameadmin) {
                 // Skip jika sedang mode search dan tidak match
                 if (Cari) {
-                    if (pilihan == 2 && 
-                        barang["nama"].get<string>().find(cari_nama) == string::npos) {
-                            continue; // Tidak match dengan nama
+                    if (pilihan == 1) {
+                        // Cari nama 
+                        string nama_barang = barang["nama"].get<string>();
+                        string cari_lower = cari_nama;
+                        transform(nama_barang.begin(), nama_barang.end(), nama_barang.begin(), ::tolower);
+                        transform(cari_lower.begin(), cari_lower.end(), cari_lower.begin(), ::tolower);
+                        
+                        if (nama_barang.find(cari_lower) == string::npos) {
+                            continue;
                         }
-                    if (pilihan == 3 && 
-                        barang["harga"].get<int>() != cari_harga) {
-                            continue; // Tidak match dengan harga
+                    } 
+                    else if (pilihan == 2) {
+                        // Cari harga exact match
+                        if (barang["harga"].get<int>() != cari_harga) {
+                            continue;
                         }
                     }
+                }
                 
                 // Tampilkan barang yang match
                 cout << "Nama: " << barang["nama"] << endl;
@@ -341,46 +371,51 @@ void lihatbarang(const string& usernameadmin, bool show_only){ // MELIHAT BARANG
         return;
     }
     file >> data;
-    cout << usernameadmin;
-    bool found = false;
-    cout << "\n== Data Toko " << usernameadmin << " ==" << endl;
-    for (const auto& barang : data["barang"]) {
-        if (barang["Toko"] == usernameadmin) { 
-            cout << "|| Nama: " << barang["nama"];
-            cout << "  | Stok: " << barang["stok"] << endl;
-            cout << "|| Berat: " << barang["berat"];
-            cout << "  | Harga: " << barang["harga"] << endl << endl;
-            found = true;
-        }
-    }
+    bool exit_menu = false;
+    while (!exit_menu) {
 
-    if (show_only == false){
-        int pilihan;
-        cout << "||================= Menu =================||" << endl;
-        cout << "||  [1] Urutkan || [2] Cari || [3] Keluar ||" << endl;
-        cout << "||========================================||" << endl << endl;
-        cin >> pilihan;
-        cin.ignore();
-        switch(pilihan){
-            case 1:
-            Sorting();
-            break;
-            case 2:
-            Carikan();
-            break;
-            case 3:
-            break;
-            default:
-            cout << "Pilihan Tidak Valid" << endl;
+        bool found = false;
+        cout << "\n== Data Toko " << usernameadmin << " ==" << endl;
+        for (const auto& barang : data["barang"]) {
+            if (barang["Toko"] == usernameadmin) { 
+                cout << "|| Nama: " << barang["nama"];
+                cout << "  | Stok: " << barang["stok"] << endl;
+                cout << "|| Berat: " << barang["berat"];
+                cout << "  | Harga: " << barang["harga"] << endl << endl;
+                found = true;
+            }
         }
-    }
-
-    if (!found) {
-        cout << "Tidak Ada Barang" << endl;
+        if (!found){
+            cout << "Tidak Ada Barang" << endl;
+        }
+        if (show_only == false){
+            int pilihan=0;
+            cout << "||================= Menu =================||" << endl;
+            cout << "||  [1] Urutkan || [2] Cari || [3] Keluar ||" << endl;
+            cout << "||========================================||" << endl << endl;
+            cin >> pilihan;
+            cin.ignore();
+            switch(pilihan){
+                case 1:
+                    Sorting(usernameadmin);
+                    break;
+                case 2:
+                    Carikan(usernameadmin);
+                    break;
+                case 3:
+                    pilihan = 0;
+                    return;
+                default:
+                    cout << "Pilihan Tidak Valid" << endl;
+            }
+        }
+        else {
+            return;
+        }
     }
 }
 
-void lihatbarangpembeli() { // MELIHAT SEMUA BARANG YANG DIJUAL DARI BERBAGAI TOKO
+void lihatbarangpembeli(const string namaToko) { // MELIHAT SEMUA BARANG YANG DIJUAL DARI BERBAGAI TOKO
     ifstream file("data_barang.json");
     json data;
     if(!file.is_open()) {
@@ -391,7 +426,7 @@ void lihatbarangpembeli() { // MELIHAT SEMUA BARANG YANG DIJUAL DARI BERBAGAI TO
         
     cout << "\n== Data barang penjual ==" << endl;
     for (const auto& barang : data["barang"]) {
-        if (barang["stok"] > 0){
+        if (barang["stok"] > 0 && barang["Toko"] == namaToko){
             cout << "|| Toko: " << barang["Toko"] << endl;
             cout << "|| Nama: " << barang["nama"];
             cout << "  | Stok: " << barang["stok"] << endl;
@@ -405,13 +440,13 @@ void lihatbarangpembeli() { // MELIHAT SEMUA BARANG YANG DIJUAL DARI BERBAGAI TO
 void barangpenjual(const string& usernameadmin, bool show_only){ // MENAMBAH BARANG (PENJUAL)
     InputBarang TambahBarang;
     cin.ignore();
-    cout << "masukkan nama barang"<<endl;
+    cout << "Masukkan Nama Barang: ";
     getline(cin, TambahBarang.namabarang);
-    cout << "masukkan stok barang dalam kg atau satuan"<<endl;
+    cout << "Masukkan Stok Barang: ";
     cin >> TambahBarang.stok;
-    cout << "masukkan berat barang/penjualan atau satuan barang/penjualan"<<endl;
+    cout << "Masukkan Berat per Barang (Satuan kg): ";
     cin >> TambahBarang.berat;
-    cout << "masukkan harga barang/penjualan atau /kg"<<endl;
+    cout << "Masukkan Harga per 1kg Barang: ";
     cin >> TambahBarang.harga;
 
     json data;
@@ -420,7 +455,6 @@ void barangpenjual(const string& usernameadmin, bool show_only){ // MENAMBAH BAR
         inFile >> data;
         inFile.close();
     } else {
-        // File might not exist yet, initialize empty json
         data["barang"] = json::array();
     }
 
@@ -824,7 +858,6 @@ void topup(const string& username, const string& password){ // Menambahkan Dana 
     json data;
     ifstream inFile("data_user.json");
     int fitur, pilihantopup, dana, jumlahtopup;
-    cout << username << " == " << password << endl;
 
     if (inFile.is_open()) {
         inFile >> data;
@@ -921,7 +954,7 @@ void topup(const string& username, const string& password){ // Menambahkan Dana 
 
 void beli(const string& username, const string& password) { // User Membeli Barang Dan Status Barang Dipesan
     json dataBarang, dataUser, dataPembelian;
-    string namaBarang;
+    string namaBarang, namaToko;
     int jumlahBeli, dana;
     bool found = false;
 
@@ -966,8 +999,19 @@ void beli(const string& username, const string& password) { // User Membeli Bara
         return;
     }
     
+        cout << "===== LIST TOKO =====" << endl;
+    for (const auto& user : dataUser["penjual"])
+    {
+        cout << user["username"] << endl;
+    }
+    cout << "\nMasukkan nama toko yang ingin dikunjungi: ";
+    cin.ignore();
+    getline(cin, namaToko);
+
     // Tampilkan daftar barang
-    lihatbarangpembeli();
+    lihatbarangpembeli(namaToko);
+
+
 
     int maxUID = 0;
     for (const auto& pesan : dataPembelian["pembelian"]) {
@@ -978,15 +1022,14 @@ void beli(const string& username, const string& password) { // User Membeli Bara
     }
 
     cout << "\nMasukkan nama barang yang ingin dibeli: ";
-    cin.ignore();
     getline(cin, namaBarang);
     for (auto& barang : dataBarang["barang"]) {
-        if (barang["nama"] == namaBarang) {
+        if (barang["nama"] == namaBarang && barang["Toko"] == namaToko) {
             found = true;
             cout << "Masukkan jumlah yang ingin dibeli: ";
             cin >> jumlahBeli;
 
-            int totalHarga = jumlahBeli * int(barang["harga"]);
+            float totalHarga = jumlahBeli * (int(barang["harga"]) * float(barang["berat"]));
             cout << "Total harga : " << totalHarga << endl;
             cout << "Dana Anda : " << dana << endl;
 
@@ -1177,23 +1220,25 @@ void hapuspesanan(const string& username, const string& password){ // Menghapus 
     auto& pesanan = dataP["pembelian"];
     bool terhapus = false;
     for (auto it = pesanan.begin(); it != pesanan.end(); ) {
-        if ((*it)["Status"] != "Dipesan") {
-            cout << "Pesanan Sudah Di Konfirmasi Dan Tidak Bisa Dibatalkan!!" << endl;
-            terhapus = true;
-            break;
+        if ((*it)["UID"] == pilihan && (*it)["username"] == username) {
+            if ((*it)["Status"] == "Dipesan" || (*it)["Status"] == "SelesaiDitarik") {
+                it = pesanan.erase(it);
+                cout << "Pesanan dengan No. Pesanan " << pilihan << " telah dihapus" << endl;
+                terhapus = true;
+                break;
+            } else {
+                cout << "Pesanan Sudah Di Konfirmasi Dan Tidak Bisa Dibatalkan!!" << endl;
+                terhapus = true;
+                break;
+            }
         }
-        if ((*it)["UID"] == pilihan && (*it)["username"] == username && (*it)["Status"] == "Dipesan") {
-            it = pesanan.erase(it); // Menghapus objek dan mendapatkan iterator baru
-            cout << "Pesanan dengan No. Pesanan " << pilihan << " telah dihapus" << endl;
-            terhapus = true;
-            break;
-        } 
         else {
             ++it;
         }
     }
     if (pilihan != 0 && !terhapus){
         cout << "Nomor Pesanan Tidak Sesuai" << endl;
+        return;
     }
     ofstream outFileP("data_pembelian.json");
     outFileP << dataP.dump(4);
@@ -1303,7 +1348,7 @@ void menuadmin(const string usernameadmin, const string passwordadmin) {
             bebersih();
             cout << "Kembali Ke Menu Login" << endl;
             pilihan = 0;
-            menuutama();
+            return;
         default:
             bebersih();
             cout << "pilihan tidak valid" << endl;
@@ -1356,7 +1401,7 @@ void menupembeli(const string username, string password) {
         case 6:
             bebersih();
             cout << "Kembali Ke Menu Login" << endl;
-            break;
+            return;
         default:
             bebersih();
             cout << "pilihan tidak valid" << endl;
@@ -1364,7 +1409,17 @@ void menupembeli(const string username, string password) {
     } while (pilihan != 6);
 }
 
-void regis(string& username, string& password, string* penjual, string* pwsell, int& jumlah_user, int& pilihan, string& nohp){ // Registrasi
+bool isAllDigits(const string& str) {
+    for (char c : str) {
+        if (c < '0' || c > '9') { // Cek apakah karakter bukan digit
+            return false;
+        }
+    }
+    return true;
+}
+
+void regis(string& username, string& password, string* penjual, string* pwsell, 
+           int& jumlah_user, int& pilihan, string& nohp, string& hppj, int& dana) {
     bool repeat = false;
     cout << "\n=== Menu Pendaftaran ===" << endl;
     cout << "1. Daftar sebagai penjual" << endl;
@@ -1373,58 +1428,73 @@ void regis(string& username, string& password, string* penjual, string* pwsell, 
     cout << "Pilihan Anda: ";
     cin >> pilihan;
     cin.ignore();
-    switch (pilihan)
-    {
+    
+    switch (pilihan) {
     case 1:
-        if(repeat == false){
+        if (repeat == false) {
             bebersih();
         }
-        cout<<"Masukkan username: ";
-        cin>>penjual[jumlah_user];
-        if(cekuser()){
+        cout << "Masukkan username: ";
+        cin >> penjual[jumlah_user];
+        if (cekuser()) {  // Asumsi cekuser() sudah didefinisikan
             repeat = true;
             bebersih();
-            cout<<"username sudah terdaftar, silahkan cari username lain"<<endl;
+            cout << "Username sudah terdaftar, silahkan cari username lain" << endl;
             return;
         }
-        cout<<"Masukkan password: ";
-        cin>>pwsell[jumlah_user];
-        cout<<"Masukkan No.hp: ";
-        cin>>hppj;
+        cout << "Masukkan password: ";
+        cin >> pwsell[jumlah_user];
+        
+        // Validasi nomor HP untuk penjual
+        while (true) {
+            cout << "Masukkan No. HP (hanya angka): ";
+            cin >> hppj;
+            if (isAllDigits(hppj)) break;
+            cout << "ERROR: Nomor HP hanya boleh berisi angka!" << endl;
+        }
+        
         cin.ignore();
-        datapenjual(penjual, pwsell, jumlah_user,hppj,dana);
+        datapenjual(penjual, pwsell, jumlah_user, hppj, dana);  // Asumsi fungsi ini sudah didefinisikan
         jumlah_user++;
         break;
     
     case 2:
-        if(repeat == false){
+        if (repeat == false) {
             bebersih();
         }
         cout << "Masukkan username: ";
-        cin>>username;
-        if(cekuser()){
+        cin >> username;
+        if (cekuser()) {  // Asumsi cekuser() sudah didefinisikan
             repeat = true;
             bebersih();
-            cout<<"username sudah terdaftar, silahkan cari username lain"<<endl;
+            cout << "Username sudah terdaftar, silahkan cari username lain" << endl;
             return;
         }
         cout << "Masukkan password: ";
-        cin>>password;
-        cout<<"masukkan No.hp: ";
-        cin>>nohp;
+        cin >> password;
+        
+        // Validasi nomor HP untuk pembeli
+        while (true) {
+            cout << "Masukkan No. HP (hanya angka): ";
+            cin >> nohp;
+            if (isAllDigits(nohp)) break;
+            cout << "ERROR: Nomor HP hanya boleh berisi angka!" << endl;
+        }
+        
         cin.ignore();
-        datapembeli(username, password,nohp);
-    break;
+        datapembeli(username, password, nohp);  // Asumsi fungsi ini sudah didefinisikan
+        break;
 
     case 3:
         cout << "Kembali Ke Menu Sebelumnya" << endl;
-        menuutama();
+        menuutama();  // Asumsi fungsi ini sudah didefinisikan
+        break;
     default:
         cout << "Pilihan tidak valid." << endl;
         break;
     }
-
 }
+
 void login(string& username, string& password, string* penjual, string* pwsell, int* jumlah_user, int& pilihan, int& percobaan, string& nohp, string& hppj) {
     json data;
     std::ifstream inFile("data_user.json");
@@ -1442,7 +1512,6 @@ void login(string& username, string& password, string* penjual, string* pwsell, 
     if (cin.fail()) {
         cin.clear();
         cin.ignore();
-        bebersih();
         cout << "Input tidak valid. Masukkan angka." << endl;
         return login(username, password, penjual, pwsell, jumlah_user, pilihan, percobaan, nohp, hppj);
     }
@@ -1489,17 +1558,6 @@ void login(string& username, string& password, string* penjual, string* pwsell, 
         cout << "Kembali Ke Menu Sebelumnya" << endl;
         break;
 
-    // case 6:
-    //     cout << "=== SUPERADMIN ===";
-    //     cout << "Masukkan username : ";
-    //     cin >> username;
-    //     cout << "Masukkan password : ";
-    //     cin >> password;
-    //     cin.ignore();
-    //     if (username == "E-RAD" && password == "51814"){
-    //         menusuper();
-    //     }
-
     default:
         bebersih();
         cout << "Pilihan tidak valid." << endl;
@@ -1529,11 +1587,10 @@ void menuutama() {
 
             switch (pilihan) {
                 case 1:
-                    regis(username, password, penjual, pwsell, jumlah_user, pilihan, nohp);
+                    regis(username, password, penjual, pwsell, jumlah_user, pilihan, nohp, hppj, dana);
                     pilihan = 0;
                     break;
                 case 2:
-                    bebersih();
                     login(username, password, penjual, pwsell, &jumlah_user, pilihan, percobaan, nohp, hppj);
                     pilihan = 0;
                     break;

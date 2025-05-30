@@ -1,42 +1,18 @@
 {
     "pembeli": [
         {
-            "dana": 1516900,
-            "nohp": "2",
-            "password": "1",
-            "username": "andin"
-        },
-        {
-            "dana": 3115000,
-            "nohp": "r",
-            "password": "r",
-            "username": "r"
+            "dana": 1490000,
+            "nohp": "08",
+            "password": "1000",
+            "username": "elfinbeli"
         }
     ],
     "penjual": [
         {
-            "dana": 0,
-            "nohp": "083152142438",
-            "password": "25",
-            "username": "dwi"
-        },
-        {
-            "dana": 890000,
-            "nohp": "5",
-            "password": "5",
-            "username": "5"
-        },
-        {
-            "dana": 0,
-            "nohp": "6",
-            "password": "6",
-            "username": "6"
-        },
-        {
-            "dana": 0,
-            "nohp": "4",
-            "password": "4",
-            "username": "Rangga"
+            "dana": 10000,
+            "nohp": "085754588111",
+            "password": "100",
+            "username": "elfin"
         }
     ]
 }

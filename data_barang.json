@@ -1,32 +1,11 @@
 {
     "barang": [
         {
-            "Toko": "5",
-            "berat": 100,
-            "harga": 1000,
-            "nama": "Apel Enak",
-            "stok": 100
-        },
-        {
-            "Toko": "6",
-            "berat": 5,
-            "harga": 100000,
-            "nama": "mebel 3",
-            "stok": 20
-        },
-        {
-            "Toko": "5",
-            "berat": 100,
+            "Toko": "elfin",
+            "berat": 100.0,
             "harga": 100,
-            "nama": "ret",
-            "stok": 29
-        },
-        {
-            "Toko": "5",
-            "berat": 100,
-            "harga": 10000,
-            "nama": "Mebel Murah",
-            "stok": 0
+            "nama": "Mebel",
+            "stok": 9
         }
     ]
 }
